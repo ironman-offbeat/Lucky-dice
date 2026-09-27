@@ -1,7 +1,6 @@
 import type { EventId } from '../game/GameState'
 import type {
   EventCategory,
-  EventChoiceDefinition,
   EventDefinition,
 } from './types'
 
