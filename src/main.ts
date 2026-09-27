@@ -1,5 +1,13 @@
 import './styles/game.css'
-import { INITIAL_GAME_STATE } from './game/GameState'
+import {
+  beginMove,
+  beginRoll,
+  completeMove,
+  completePlaceholderEvent,
+  revealRoll,
+  type StageMoveResult,
+} from './game/GameEngine'
+import { INITIAL_GAME_STATE, type GameStatus } from './game/GameState'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -8,6 +16,51 @@ if (!app) {
 }
 
 const state = structuredClone(INITIAL_GAME_STATE)
+let currentMove: StageMoveResult | null = null
+let runeTimer: number | null = null
+let visibleRunes = ['⌁', 'ᚱ', '⌬']
+
+const RUNE_SETS = [
+  ['⌁', 'ᚱ', '⌬'],
+  ['⟁', 'ᚣ', '✶'],
+  ['☍', '⌘', '⟐'],
+  ['ᛝ', '◈', 'ᚦ'],
+  ['⌖', 'ᛉ', '⋈'],
+  ['ᚺ', '⍟', '⌗'],
+] as const
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const timing = prefersReducedMotion
+  ? { roll: 80, result: 80, move: 80 }
+  : { roll: 950, result: 650, move: 450 }
+
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => window.setTimeout(resolve, ms))
+
+const visualRandomIndex = (length: number): number => {
+  if (length <= 1) return 0
+
+  const values = new Uint32Array(1)
+  crypto.getRandomValues(values)
+  return values[0] % length
+}
+
+const nextRuneSet = (): string[] => [...RUNE_SETS[visualRandomIndex(RUNE_SETS.length)]]
+
+const startRuneShuffle = (): void => {
+  stopRuneShuffle()
+  visibleRunes = nextRuneSet()
+  runeTimer = window.setInterval(() => {
+    visibleRunes = nextRuneSet()
+    updateRunesOnly()
+  }, 85)
+}
+
+const stopRuneShuffle = (): void => {
+  if (runeTimer !== null) {
+    window.clearInterval(runeTimer)
+    runeTimer = null
+  }
+}
 
 const gaugeMaxFor = (coin: number): number => {
   if (coin <= 10) return 10
@@ -20,74 +73,223 @@ const gaugeMaxFor = (coin: number): number => {
   return Math.ceil(coin / 1000) * 1000
 }
 
-const gaugeMax = gaugeMaxFor(state.economy.coin)
-const gaugePercent = Math.min(100, Math.max(0, (state.economy.coin / gaugeMax) * 100))
+const signed = (value: number): string => (value >= 0 ? `+${value}` : `${value}`)
 
-app.innerHTML = `
-  <main class="game-shell" aria-label="Lucky Dice game shell">
-    <header class="hud">
-      <div class="hud__topline">
-        <div class="brand">
-          <span class="brand__mark" aria-hidden="true">◆</span>
-          <span>LUCKY DICE</span>
-        </div>
-        <div class="stage-label">STAGE <strong>${state.progress.stage}</strong> / 400</div>
-      </div>
+const statusLabel = (status: GameStatus): string => {
+  switch (status) {
+    case 'rolling':
+      return 'ROLLING'
+    case 'result':
+      return 'RESULT'
+    case 'moving':
+      return 'MOVING'
+    case 'event':
+      return 'EVENT READY'
+    case 'victory':
+      return 'COMPLETE'
+    case 'game-over':
+      return 'GAME OVER'
+    default:
+      return 'READY'
+  }
+}
 
-      <section class="coin-panel" aria-label="Coin status">
-        <div class="coin-panel__label-row">
-          <span class="coin-panel__label">COIN</span>
-          <strong class="coin-panel__value">${state.economy.coin}</strong>
+const focusCopy = (): { eyebrow: string; button: string; disabled: boolean } => {
+  switch (state.progress.gameStatus) {
+    case 'rolling':
+      return { eyebrow: '운명이 굴러갑니다', button: '굴리는 중…', disabled: true }
+    case 'result':
+      return { eyebrow: '주사위가 멈췄습니다', button: '결과 확인', disabled: true }
+    case 'moving':
+      return { eyebrow: '여정을 이동합니다', button: '이동 중…', disabled: true }
+    case 'event':
+      return { eyebrow: '이동이 완료되었습니다', button: '이벤트 진행 중', disabled: true }
+    case 'victory':
+      return { eyebrow: '여정의 끝에 도달했습니다', button: 'JOURNEY COMPLETE', disabled: true }
+    default:
+      return { eyebrow: '운명을 굴릴 준비가 되었습니다', button: '주사위 굴리기', disabled: false }
+  }
+}
+
+const renderRollReadout = (): string => {
+  if (!currentMove || state.progress.gameStatus === 'ready' || state.progress.gameStatus === 'rolling') {
+    return '<div class="roll-readout roll-readout--empty" aria-hidden="true"></div>'
+  }
+
+  const moveClass = currentMove.finalMove < 0 ? ' roll-readout__move--negative' : ''
+
+  return `
+    <div class="roll-readout" aria-live="polite">
+      <div><span>주사위 결과</span><strong>${currentMove.rawRoll}</strong></div>
+      <div><span>보정</span><strong>${signed(currentMove.modifierApplied)}</strong></div>
+      <div class="roll-readout__move${moveClass}"><span>MOVE</span><strong>${signed(currentMove.finalMove)}</strong></div>
+    </div>
+  `
+}
+
+const renderEventPanel = (): string => {
+  if (state.progress.gameStatus === 'victory' && currentMove) {
+    return `
+      <section class="event-panel event-panel--victory" aria-label="Victory">
+        <div class="event-panel__heading">
+          <span>JOURNEY</span>
+          <span class="event-panel__badge">COMPLETE</span>
         </div>
-        <div
-          class="coin-gauge"
-          role="progressbar"
-          aria-label="Coin survival gauge"
-          aria-valuemin="0"
-          aria-valuemax="${gaugeMax}"
-          aria-valuenow="${state.economy.coin}"
-        >
-          <div class="coin-gauge__fill" style="width: ${gaugePercent}%"></div>
-        </div>
-        <div class="coin-panel__scale">0 <span>${gaugeMax}</span></div>
+        <h1>여정의 끝</h1>
+        <p>Stage ${currentMove.stageBefore}에서 ${currentMove.finalMove >= 0 ? '전진' : '후진'}하여 Stage ${state.progress.stage}에 도달했습니다.</p>
       </section>
+    `
+  }
 
-      <div class="stats-strip" aria-label="Current modifiers">
-        <div><span>획득</span><strong>+${state.economy.coinGainBonus}</strong></div>
-        <div><span>손실</span><strong>+${state.economy.coinLossBonus}</strong></div>
-        <div><span>주사위</span><strong>${state.dice.modifier >= 0 ? '+' : ''}${state.dice.modifier}</strong></div>
-      </div>
-    </header>
-
-    <section class="focus-panel" aria-label="Dice area">
-      <div class="dice-orbit" aria-hidden="true">
-        <div class="dummy-die">
-          <span class="rune rune--1">⌁</span>
-          <span class="rune rune--2">ᚱ</span>
-          <span class="rune rune--3">⌬</span>
+  if (state.progress.gameStatus === 'event' && currentMove) {
+    return `
+      <section class="event-panel event-panel--active" aria-label="Event area">
+        <div class="event-panel__heading">
+          <span>EVENT</span>
+          <span class="event-panel__badge">READY</span>
         </div>
-      </div>
-      <p class="focus-panel__eyebrow">운명을 굴릴 준비가 되었습니다</p>
-      <button class="primary-action" type="button" disabled>주사위 굴리기</button>
-      <p class="phase-note">Phase 2 UI Shell · 게임 로직은 Phase 3에서 연결</p>
-    </section>
+        <h1>Stage ${state.progress.stage}</h1>
+        <p class="stage-move-line"><strong>${currentMove.stageBefore}</strong><span>→</span><strong>${currentMove.stageAfter}</strong></p>
+        <p>Phase 3에서는 여기까지 이동합니다. 실제 이벤트는 Event Engine 단계에서 연결됩니다.</p>
+        <button class="secondary-action" type="button" data-action="complete-event">다음 턴</button>
+      </section>
+    `
+  }
 
+  return `
     <section class="event-panel" aria-label="Event area">
       <div class="event-panel__heading">
         <span>EVENT</span>
-        <span class="event-panel__badge">READY</span>
+        <span class="event-panel__badge">${statusLabel(state.progress.gameStatus)}</span>
       </div>
-      <h1>여정의 시작</h1>
+      <h1>${state.progress.stage === 0 ? '여정의 시작' : `Stage ${state.progress.stage}`}</h1>
       <p>주사위가 멈추는 곳에서 다음 사건이 시작됩니다.</p>
       <div class="choice-placeholder" aria-hidden="true">
         <span></span>
         <span></span>
       </div>
     </section>
+  `
+}
 
-    <footer class="inventory-bar">
-      <button type="button" disabled><span>✦</span> 축복 <strong>${state.blessings.owned.length}</strong></button>
-      <button type="button" disabled><span>▣</span> 악세사리 <strong>${state.inventory.ownedAccessories.length}</strong></button>
-    </footer>
-  </main>
-`
+const render = (): void => {
+  const gaugeMax = gaugeMaxFor(state.economy.coin)
+  const gaugePercent = Math.min(100, Math.max(0, (state.economy.coin / gaugeMax) * 100))
+  const focus = focusCopy()
+  const rollingClass = state.progress.gameStatus === 'rolling' ? ' dummy-die--rolling' : ''
+  const resultClass = state.progress.gameStatus === 'result' ? ' dummy-die--result' : ''
+  const movingClass = state.progress.gameStatus === 'moving' ? ' dummy-die--moving' : ''
+  const negativeClass = currentMove !== null && currentMove.finalMove < 0 ? ' focus-panel--negative' : ''
+
+  app.innerHTML = `
+    <main class="game-shell${state.progress.isHell ? ' game-shell--hell' : ''}" aria-label="Lucky Dice game">
+      <header class="hud">
+        <div class="hud__topline">
+          <div class="brand">
+            <span class="brand__mark" aria-hidden="true">◆</span>
+            <span>LUCKY DICE</span>
+          </div>
+          <div class="stage-label">STAGE <strong>${state.progress.stage}</strong> / 400</div>
+        </div>
+
+        <section class="coin-panel" aria-label="Coin status">
+          <div class="coin-panel__label-row">
+            <span class="coin-panel__label">COIN</span>
+            <strong class="coin-panel__value">${state.economy.coin}</strong>
+          </div>
+          <div
+            class="coin-gauge"
+            role="progressbar"
+            aria-label="Coin survival gauge"
+            aria-valuemin="0"
+            aria-valuemax="${gaugeMax}"
+            aria-valuenow="${state.economy.coin}"
+          >
+            <div class="coin-gauge__fill" style="width: ${gaugePercent}%"></div>
+          </div>
+          <div class="coin-panel__scale">0 <span>${gaugeMax}</span></div>
+        </section>
+
+        <div class="stats-strip" aria-label="Current modifiers">
+          <div><span>획득</span><strong>${signed(state.economy.coinGainBonus)}</strong></div>
+          <div><span>손실</span><strong>${signed(state.economy.coinLossBonus)}</strong></div>
+          <div><span>주사위</span><strong>${signed(state.dice.modifier)}</strong></div>
+        </div>
+      </header>
+
+      <section class="focus-panel${negativeClass}" aria-label="Dice area">
+        <div class="dice-orbit" aria-hidden="true">
+          <div class="dummy-die${rollingClass}${resultClass}${movingClass}" data-die>
+            <span class="rune rune--1" data-rune="0">${visibleRunes[0]}</span>
+            <span class="rune rune--2" data-rune="1">${visibleRunes[1]}</span>
+            <span class="rune rune--3" data-rune="2">${visibleRunes[2]}</span>
+          </div>
+        </div>
+        <p class="focus-panel__eyebrow">${focus.eyebrow}</p>
+        ${renderRollReadout()}
+        <button class="primary-action" type="button" data-action="roll" ${focus.disabled ? 'disabled' : ''}>${focus.button}</button>
+        <p class="phase-note">Phase 3 · Dice Engine + Stage Movement</p>
+      </section>
+
+      ${renderEventPanel()}
+
+      <footer class="inventory-bar">
+        <button type="button" disabled><span>✦</span> 축복 <strong>${state.blessings.owned.length}</strong></button>
+        <button type="button" disabled><span>▣</span> 악세사리 <strong>${state.inventory.ownedAccessories.length}</strong></button>
+      </footer>
+    </main>
+  `
+
+  bindActions()
+}
+
+const updateRunesOnly = (): void => {
+  const runeNodes = app.querySelectorAll<HTMLElement>('[data-rune]')
+  runeNodes.forEach((node) => {
+    const index = Number(node.dataset.rune)
+    node.textContent = visibleRunes[index] ?? ''
+  })
+}
+
+const playRollSequence = async (): Promise<void> => {
+  if (state.progress.gameStatus !== 'ready') return
+
+  currentMove = beginRoll(state)
+  visibleRunes = nextRuneSet()
+  render()
+  startRuneShuffle()
+
+  await sleep(timing.roll)
+  stopRuneShuffle()
+  visibleRunes = nextRuneSet()
+  revealRoll(state)
+  render()
+
+  await sleep(timing.result)
+  beginMove(state)
+  render()
+
+  await sleep(timing.move)
+  completeMove(state, currentMove)
+  render()
+}
+
+const handleCompleteEvent = (): void => {
+  if (state.progress.gameStatus !== 'event') return
+  completePlaceholderEvent(state)
+  currentMove = null
+  visibleRunes = nextRuneSet()
+  render()
+}
+
+const bindActions = (): void => {
+  const rollButton = app.querySelector<HTMLButtonElement>('[data-action="roll"]')
+  rollButton?.addEventListener('click', () => {
+    void playRollSequence()
+  })
+
+  const nextTurnButton = app.querySelector<HTMLButtonElement>('[data-action="complete-event"]')
+  nextTurnButton?.addEventListener('click', handleCompleteEvent)
+}
+
+render()
