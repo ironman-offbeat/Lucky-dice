@@ -4,7 +4,7 @@ Mobile-first web remake of the original Python console game **Lucky Dice**.
 
 ## Current phase
 
-Phase 5 foundation:
+Phase 6 foundation:
 
 - Vite + TypeScript
 - Mobile portrait-first layout
@@ -13,11 +13,12 @@ Phase 5 foundation:
 - Original-compatible per-run event schedule generator
 - Typed Event Registry for normal, special, hell, hidden, rare and system events
 - Event state flow: stage → registry → choice → result → economy settlement → next turn
+- Normal events 1, 2, 3, 11, 12 and 13 now execute their original coin effects through EconomyEngine
 - Coin gain/loss bonuses, exact costs, compound growth, rounding and bonus-floor settlement
 - Coin <= 0 game-over handling
 - Original Python implementation preserved under `legacy/`
 
-The Event Engine framework is connected. Phase 6 ports the actual normal-event rules into the registered definitions.
+The first six normal events are live. Remaining normal, special, hell, hidden and blessing events are still routed through the framework placeholder until their dedicated port phases.
 
 ## Local development
 

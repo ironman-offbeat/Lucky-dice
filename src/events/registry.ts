@@ -5,22 +5,27 @@ import type {
   EventDefinition,
 } from './types'
 
-const CONTINUE_CHOICE: readonly EventChoiceDefinition[] = Object.freeze([
-  { id: 'continue', label: '계속' },
-])
-
 const definition = (
   id: EventId,
   name: string,
   category: EventCategory,
   description: string,
+  options: {
+    implemented?: boolean
+    choiceLabel?: string
+  } = {},
 ): EventDefinition => ({
   id,
   name,
   category,
   description,
-  choices: CONTINUE_CHOICE,
-  implemented: false,
+  choices: [
+    {
+      id: 'continue',
+      label: options.choiceLabel ?? '계속',
+    },
+  ],
+  implemented: options.implemented ?? false,
 })
 
 const definitions: readonly EventDefinition[] = [
@@ -29,9 +34,9 @@ const definitions: readonly EventDefinition[] = [
   definition('hidden-zero', '되돌아온 길', 'hidden', 'Stage 0 이하에서 발생하는 히든 이벤트입니다.'),
   definition(-1, '첫 번째 히든 이벤트', 'hidden', 'Stage 1에 배치된 원본 히든 이벤트입니다.'),
   definition(0, '쉬어가기', 'system', '별도의 사건 없이 다음 여정을 준비합니다.'),
-  definition(1, '맞장뜨기', 'normal', '50% 확률의 승패로 코인이 변하는 이벤트입니다.'),
-  definition(2, '삥 뜯기기', 'normal', '코인을 잃는 일반 이벤트입니다.'),
-  definition(3, '코인 줍기', 'normal', '코인을 획득하는 일반 이벤트입니다.'),
+  definition(1, '맞장뜨기', 'normal', '50% 확률로 코인을 얻거나 잃습니다.', { implemented: true, choiceLabel: '싸운다' }),
+  definition(2, '삥 뜯기기', 'normal', '길에서 코인을 빼앗깁니다.', { implemented: true, choiceLabel: '결과 확인' }),
+  definition(3, '코인 줍기', 'normal', '길에서 코인을 발견합니다.', { implemented: true, choiceLabel: '결과 확인' }),
   definition(4, '도박장', 'normal', '보유 코인을 걸고 결과를 확인하는 도박 이벤트입니다.'),
   definition(5, '택시 아저씨', 'normal', '코인을 지불하고 Stage를 추가 이동하는 이벤트입니다.'),
   definition(6, '천사의 축복', 'normal', '천사와 관련된 선택 이벤트입니다.'),
@@ -39,9 +44,9 @@ const definitions: readonly EventDefinition[] = [
   definition(8, '무언가 낙하', 'normal', '거대한 존재와 마주치는 이벤트입니다.'),
   definition(9, '찬양', 'normal', '입력형 찬양 이벤트입니다.'),
   definition(10, '기억', 'normal', '기억력을 사용하는 입력 이벤트입니다.'),
-  definition(11, '코인뭉치', 'normal', '코인 2를 기준으로 획득하는 일반 이벤트입니다.'),
-  definition(12, '코인주머니', 'normal', '코인 3을 기준으로 획득하는 일반 이벤트입니다.'),
-  definition(13, '코인 털리기', 'normal', '코인 2를 기준으로 잃는 일반 이벤트입니다.'),
+  definition(11, '코인뭉치', 'normal', '코인 2 + 획득 보너스를 얻습니다.', { implemented: true, choiceLabel: '결과 확인' }),
+  definition(12, '코인주머니', 'normal', '코인 3 + 획득 보너스를 얻습니다.', { implemented: true, choiceLabel: '결과 확인' }),
+  definition(13, '코인 털리기', 'normal', '코인 2 + 손실 보너스를 잃습니다.', { implemented: true, choiceLabel: '결과 확인' }),
   definition(14, '바람의 정령', 'normal', '바람의 정령과 관련된 이벤트입니다.'),
   definition(15, '1분 후 숫자 입력', 'normal', '예약된 시간 뒤 짧은 입력을 요구하는 이벤트입니다.'),
   definition(20, '지옥 · 악마의 추격', 'hell', '악마에게서 도망치며 코인을 잃는 지옥 이벤트입니다.'),

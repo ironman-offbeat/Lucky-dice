@@ -1,6 +1,7 @@
 import type { EventId, GameState } from './GameState'
 import { settleEconomy, type EconomySettlementResult } from './EconomyEngine'
 import { getEventDefinition } from '../events/registry'
+import { resolveRegisteredEvent } from '../events/resolvers'
 import {
   createEventSchedule,
   scheduledEventIdAt,
@@ -91,6 +92,7 @@ export const getCurrentEventDefinition = (
 export const resolveCurrentEventChoice = (
   state: GameState,
   choiceId: string,
+  random: EventRandomSource = Math.random,
 ): EventResolution => {
   assertStatus(state, 'choice')
 
@@ -108,16 +110,32 @@ export const resolveCurrentEventChoice = (
   }
 
   state.event.pendingChoiceId = choice.id
-  state.event.resultText = currentEvent.implemented
-    ? `${currentEvent.name} 결과가 적용되었습니다.`
-    : `${currentEvent.name}의 실행 경로가 정상적으로 연결되었습니다. 실제 효과는 다음 이벤트 이식 단계에서 적용됩니다.`
+
+  const implementedResolution = resolveRegisteredEvent(
+    state,
+    currentEvent.id,
+    random,
+  )
+
+  if (currentEvent.implemented && !implementedResolution) {
+    throw new Error(
+      `Implemented event ${String(currentEvent.id)} has no registered resolver.`,
+    )
+  }
+
+  const resolution: EventResolution =
+    implementedResolution ?? {
+      eventId: currentEvent.id,
+      title: currentEvent.name,
+      message:
+        `${currentEvent.name}의 실행 경로가 정상적으로 연결되었습니다. ` +
+        '실제 효과는 이후 이벤트 이식 단계에서 적용됩니다.',
+    }
+
+  state.event.resultText = resolution.message
   state.progress.gameStatus = 'event-result'
 
-  return {
-    eventId: currentEvent.id,
-    title: currentEvent.name,
-    message: state.event.resultText,
-  }
+  return resolution
 }
 
 export const completeCurrentEvent = (
