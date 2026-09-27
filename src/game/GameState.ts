@@ -5,10 +5,13 @@ export type GameStatus =
   | 'moving'
   | 'event'
   | 'choice'
+  | 'event-result'
   | 'game-over'
   | 'victory'
 
 export type DiceType = 'normal' | 'dark' | 'special-50'
+
+export type EventId = number | 'blessing' | 'fame' | 'hidden-zero'
 
 export interface ProgressState {
   stage: number
@@ -48,9 +51,11 @@ export interface InventoryState {
 }
 
 export interface EventState {
-  currentEventId: number | null
+  schedule: number[]
+  currentEventId: EventId | null
   pendingChoiceId: string | null
   pendingTimedEvent: boolean
+  resultText: string | null
 }
 
 export interface HiddenState {
@@ -101,9 +106,11 @@ export const INITIAL_GAME_STATE: GameState = {
     ownedAccessories: [],
   },
   event: {
+    schedule: [],
     currentEventId: null,
     pendingChoiceId: null,
     pendingTimedEvent: false,
+    resultText: null,
   },
   hidden: {
     demonInterest: 0,

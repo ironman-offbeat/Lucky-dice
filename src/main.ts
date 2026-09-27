@@ -3,10 +3,16 @@ import {
   beginMove,
   beginRoll,
   completeMove,
-  completePlaceholderEvent,
   revealRoll,
   type StageMoveResult,
 } from './game/GameEngine'
+import {
+  completeCurrentEvent,
+  getCurrentEventDefinition,
+  initializeEventSchedule,
+  prepareCurrentEvent,
+  resolveCurrentEventChoice,
+} from './game/EventEngine'
 import { INITIAL_GAME_STATE, type GameStatus } from './game/GameState'
 
 const app = document.querySelector<HTMLDivElement>('#app')
@@ -16,6 +22,7 @@ if (!app) {
 }
 
 const state = structuredClone(INITIAL_GAME_STATE)
+initializeEventSchedule(state)
 let currentMove: StageMoveResult | null = null
 let runeTimer: number | null = null
 let visibleRunes = ['⌁', 'ᚱ', '⌬']
@@ -86,6 +93,10 @@ const statusLabel = (status: GameStatus): string => {
       return 'MOVING'
     case 'event':
       return 'EVENT READY'
+    case 'choice':
+      return 'CHOICE'
+    case 'event-result':
+      return 'EVENT RESULT'
     case 'victory':
       return 'COMPLETE'
     case 'game-over':
@@ -104,7 +115,11 @@ const focusCopy = (): { eyebrow: string; button: string; disabled: boolean } => 
     case 'moving':
       return { eyebrow: '여정을 이동합니다', button: '이동 중…', disabled: true }
     case 'event':
-      return { eyebrow: '이동이 완료되었습니다', button: '이벤트 진행 중', disabled: true }
+      return { eyebrow: '이동이 완료되었습니다', button: '이벤트 계산 중', disabled: true }
+    case 'choice':
+      return { eyebrow: '새로운 사건이 기다립니다', button: '이벤트 진행 중', disabled: true }
+    case 'event-result':
+      return { eyebrow: '사건의 결과가 정해졌습니다', button: '결과 처리 중', disabled: true }
     case 'victory':
       return { eyebrow: '여정의 끝에 도달했습니다', button: 'JOURNEY COMPLETE', disabled: true }
     case 'game-over':
@@ -157,16 +172,47 @@ const renderEventPanel = (): string => {
     `
   }
 
-  if (state.progress.gameStatus === 'event' && currentMove) {
+  const currentEvent = getCurrentEventDefinition(state)
+
+  if (state.progress.gameStatus === 'choice' && currentEvent) {
+    const choices = currentEvent.choices
+      .map(
+        (choice) => `
+          <button
+            class="event-choice"
+            type="button"
+            data-event-choice="${choice.id}"
+          >${choice.label}</button>
+        `,
+      )
+      .join('')
+
     return `
-      <section class="event-panel event-panel--active" aria-label="Event area">
+      <section class="event-panel event-panel--active" aria-label="Current event">
         <div class="event-panel__heading">
-          <span>EVENT</span>
-          <span class="event-panel__badge">READY</span>
+          <span>${currentEvent.category.toUpperCase()}</span>
+          <span class="event-panel__badge">EVENT</span>
         </div>
-        <h1>Stage ${state.progress.stage}</h1>
-        <p class="stage-move-line"><strong>${currentMove.stageBefore}</strong><span>→</span><strong>${currentMove.stageAfter}</strong></p>
-        <p>Phase 4에서는 이동과 Economy 정산까지 연결됩니다. 실제 이벤트 내용은 Event Engine 단계에서 연결됩니다.</p>
+        <h1>${currentEvent.name}</h1>
+        ${currentMove ? `<p class="stage-move-line"><strong>${currentMove.stageBefore}</strong><span>→</span><strong>${currentMove.stageAfter}</strong></p>` : ''}
+        <p>${currentEvent.description}</p>
+        <div class="event-choice-list">
+          ${choices}
+        </div>
+        <p class="event-meta">EVENT ${String(currentEvent.id)} · ${currentEvent.implemented ? 'IMPLEMENTED' : 'FRAMEWORK READY'}</p>
+      </section>
+    `
+  }
+
+  if (state.progress.gameStatus === 'event-result' && currentEvent) {
+    return `
+      <section class="event-panel event-panel--result" aria-label="Event result">
+        <div class="event-panel__heading">
+          <span>RESULT</span>
+          <span class="event-panel__badge">${currentEvent.name}</span>
+        </div>
+        <h1>결과</h1>
+        <p class="event-result-copy">${state.event.resultText ?? '이벤트 결과를 처리했습니다.'}</p>
         <button class="secondary-action" type="button" data-action="complete-event">다음 턴</button>
       </section>
     `
@@ -245,7 +291,7 @@ const render = (): void => {
         <p class="focus-panel__eyebrow">${focus.eyebrow}</p>
         ${renderRollReadout()}
         <button class="primary-action" type="button" data-action="roll" ${focus.disabled ? 'disabled' : ''}>${focus.button}</button>
-        <p class="phase-note">Phase 4 · Centralized Economy Engine</p>
+        <p class="phase-note">Phase 5 · Event Schedule + Registry + Engine</p>
       </section>
 
       ${renderEventPanel()}
@@ -288,13 +334,20 @@ const playRollSequence = async (): Promise<void> => {
 
   await sleep(timing.move)
   completeMove(state, currentMove)
+  if (state.progress.gameStatus === 'event') {
+    prepareCurrentEvent(state)
+  }
   render()
 }
 
 const handleCompleteEvent = (): void => {
-  if (state.progress.gameStatus !== 'event') return
-  completePlaceholderEvent(state)
-  currentMove = null
+  if (state.progress.gameStatus !== 'event-result') return
+  completeCurrentEvent(state)
+
+  if (state.progress.gameStatus === 'ready' || state.progress.gameStatus === 'game-over') {
+    currentMove = null
+  }
+
   visibleRunes = nextRuneSet()
   render()
 }
@@ -303,6 +356,16 @@ const bindActions = (): void => {
   const rollButton = app.querySelector<HTMLButtonElement>('[data-action="roll"]')
   rollButton?.addEventListener('click', () => {
     void playRollSequence()
+  })
+
+  const choiceButtons = app.querySelectorAll<HTMLButtonElement>('[data-event-choice]')
+  choiceButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const choiceId = button.dataset.eventChoice
+      if (!choiceId || state.progress.gameStatus !== 'choice') return
+      resolveCurrentEventChoice(state, choiceId)
+      render()
+    })
   })
 
   const nextTurnButton = app.querySelector<HTMLButtonElement>('[data-action="complete-event"]')
