@@ -166,7 +166,7 @@ const renderEventPanel = (): string => {
         </div>
         <h1>Stage ${state.progress.stage}</h1>
         <p class="stage-move-line"><strong>${currentMove.stageBefore}</strong><span>→</span><strong>${currentMove.stageAfter}</strong></p>
-        <p>Phase 3에서는 여기까지 이동합니다. 실제 이벤트는 Event Engine 단계에서 연결됩니다.</p>
+        <p>Phase 4에서는 이동과 Economy 정산까지 연결됩니다. 실제 이벤트 내용은 Event Engine 단계에서 연결됩니다.</p>
         <button class="secondary-action" type="button" data-action="complete-event">다음 턴</button>
       </section>
     `
