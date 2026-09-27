@@ -4,16 +4,17 @@ Mobile-first web remake of the original Python console game **Lucky Dice**.
 
 ## Current phase
 
-Phase 2 scaffold:
+Phase 4 foundation:
 
 - Vite + TypeScript
 - Mobile portrait-first layout
-- Coin survival gauge
-- Dummy rune dice placeholder
-- Typed `GameState`
+- Dice engine + stage movement state machine
+- Centralized economy engine
+- Coin gain/loss bonuses, exact costs, compound growth, rounding and bonus-floor settlement
+- Coin <= 0 game-over handling
 - Original Python implementation preserved under `legacy/`
 
-Gameplay logic is intentionally not connected yet. Dice engine and state transitions begin in Phase 3.
+Actual event content is connected in the next Event Engine phase.
 
 ## Local development
 

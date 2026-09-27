@@ -1,6 +1,7 @@
 import type { GameState } from './GameState'
 import type { DiceRollResult, RandomSource } from './DiceEngine'
 import { rollDice } from './DiceEngine'
+import { grantCoin, settleEconomy, type EconomySettlementResult } from './EconomyEngine'
 
 export interface StageMoveResult extends DiceRollResult {
   stageBefore: number
@@ -24,6 +25,10 @@ export const beginRoll = (
 
   if (roll.source === 'forced') {
     state.dice.forcedMove = null
+  }
+
+  if (state.dice.diceBank) {
+    grantCoin(state, 0.5)
   }
 
   state.progress.gameStatus = 'rolling'
@@ -59,7 +64,13 @@ export const completeMove = (state: GameState, move: Readonly<StageMoveResult>):
   state.progress.gameStatus = 'event'
 }
 
-export const completePlaceholderEvent = (state: GameState): void => {
+export const completePlaceholderEvent = (state: GameState): EconomySettlementResult => {
   assertStatus(state, 'event')
-  state.progress.gameStatus = 'ready'
+
+  const settlement = settleEconomy(state)
+  if (!settlement.gameOver) {
+    state.progress.gameStatus = 'ready'
+  }
+
+  return settlement
 }

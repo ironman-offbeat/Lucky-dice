@@ -555,3 +555,40 @@ button {
   70% { transform: rotate(11deg) translateX(5px); }
   100% { transform: rotate(8deg) translateX(0); }
 }
+
+
+/* Phase 4: centralized economy feedback */
+.coin-panel--danger .coin-panel__value {
+  color: #f0a0a0;
+}
+
+.coin-panel--danger .coin-gauge {
+  border-color: rgba(214, 104, 104, 0.44);
+}
+
+.coin-panel--danger .coin-gauge__fill {
+  background: linear-gradient(90deg, #8f3434, #d66868, #ed9b9b);
+  box-shadow: 0 0 22px rgba(214, 104, 104, 0.28);
+  animation: coin-danger-pulse 1.4s ease-in-out infinite;
+}
+
+.event-panel--game-over {
+  border-color: rgba(214, 104, 104, 0.26);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(214, 104, 104, 0.10), transparent 52%),
+    rgba(17, 19, 24, 0.94);
+}
+
+.event-panel--game-over .event-panel__badge {
+  border-color: rgba(214, 104, 104, 0.28);
+  color: #e8a3a3;
+}
+
+.event-panel--game-over strong {
+  color: #f0c2c2;
+}
+
+@keyframes coin-danger-pulse {
+  0%, 100% { opacity: 0.82; }
+  50% { opacity: 1; }
+}

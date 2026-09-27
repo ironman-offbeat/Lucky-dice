@@ -73,7 +73,8 @@ const gaugeMaxFor = (coin: number): number => {
   return Math.ceil(coin / 1000) * 1000
 }
 
-const signed = (value: number): string => (value >= 0 ? `+${value}` : `${value}`)
+const formatNumber = (value: number): string => Number.isInteger(value) ? String(value) : String(Math.round(value * 1000) / 1000)
+const signed = (value: number): string => value >= 0 ? `+${formatNumber(value)}` : formatNumber(value)
 
 const statusLabel = (status: GameStatus): string => {
   switch (status) {
@@ -106,6 +107,8 @@ const focusCopy = (): { eyebrow: string; button: string; disabled: boolean } => 
       return { eyebrow: '이동이 완료되었습니다', button: '이벤트 진행 중', disabled: true }
     case 'victory':
       return { eyebrow: '여정의 끝에 도달했습니다', button: 'JOURNEY COMPLETE', disabled: true }
+    case 'game-over':
+      return { eyebrow: '더 이상 여정을 계속할 수 없습니다', button: 'GAME OVER', disabled: true }
     default:
       return { eyebrow: '운명을 굴릴 준비가 되었습니다', button: '주사위 굴리기', disabled: false }
   }
@@ -137,6 +140,19 @@ const renderEventPanel = (): string => {
         </div>
         <h1>여정의 끝</h1>
         <p>Stage ${currentMove.stageBefore}에서 ${currentMove.finalMove >= 0 ? '전진' : '후진'}하여 Stage ${state.progress.stage}에 도달했습니다.</p>
+      </section>
+    `
+  }
+
+  if (state.progress.gameStatus === 'game-over') {
+    return `
+      <section class="event-panel event-panel--game-over" aria-label="Game over">
+        <div class="event-panel__heading">
+          <span>JOURNEY</span>
+          <span class="event-panel__badge">GAME OVER</span>
+        </div>
+        <h1>여정 종료</h1>
+        <p>모든 코인을 잃었습니다. 최종 도달 Stage는 <strong>${state.progress.stage}</strong>입니다.</p>
       </section>
     `
   }
@@ -176,6 +192,7 @@ const render = (): void => {
   const gaugeMax = gaugeMaxFor(state.economy.coin)
   const gaugePercent = Math.min(100, Math.max(0, (state.economy.coin / gaugeMax) * 100))
   const focus = focusCopy()
+  const coinDangerClass = state.economy.coin <= 3 ? ' coin-panel--danger' : ''
   const rollingClass = state.progress.gameStatus === 'rolling' ? ' dummy-die--rolling' : ''
   const resultClass = state.progress.gameStatus === 'result' ? ' dummy-die--result' : ''
   const movingClass = state.progress.gameStatus === 'moving' ? ' dummy-die--moving' : ''
@@ -192,10 +209,10 @@ const render = (): void => {
           <div class="stage-label">STAGE <strong>${state.progress.stage}</strong> / 400</div>
         </div>
 
-        <section class="coin-panel" aria-label="Coin status">
+        <section class="coin-panel${coinDangerClass}" aria-label="Coin status">
           <div class="coin-panel__label-row">
             <span class="coin-panel__label">COIN</span>
-            <strong class="coin-panel__value">${state.economy.coin}</strong>
+            <strong class="coin-panel__value">${formatNumber(state.economy.coin)}</strong>
           </div>
           <div
             class="coin-gauge"
@@ -228,7 +245,7 @@ const render = (): void => {
         <p class="focus-panel__eyebrow">${focus.eyebrow}</p>
         ${renderRollReadout()}
         <button class="primary-action" type="button" data-action="roll" ${focus.disabled ? 'disabled' : ''}>${focus.button}</button>
-        <p class="phase-note">Phase 3 · Dice Engine + Stage Movement</p>
+        <p class="phase-note">Phase 4 · Centralized Economy Engine</p>
       </section>
 
       ${renderEventPanel()}
