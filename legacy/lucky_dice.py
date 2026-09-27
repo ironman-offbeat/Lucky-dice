@@ -998,3 +998,1143 @@ def hgate():
         break
 
     elif(iguess == 2):
+      iguess = input(int("주사위 숫자 증감을 몇 소모하시겠습니까?: "))
+      time.sleep(0.7)
+
+
+def ony():
+  global paa, i, coin, coinp, inputting
+  print('히든 이벤트 발생!')
+  time.sleep(0.7)
+  print('주사위의 숫자는 당신을 별로 멀지 않은 곳으로 이동시켰습니다')
+  time.sleep(0.7)
+  print('당신은 잠시 여정에 대한 생각을 시작합니다')
+  time.sleep(0.7)
+  print('''
+  1. 앞으로의 여정을 기대한다
+  2. 앞으로의 여정을 걱정한다
+  3. 과거의 일을 추억한다''')
+  while True:
+    try:
+      inputable()
+      inputting = 1
+      iguess = int(input())
+    except:
+      print('올바른 값을 입력하시오.')
+      continue
+    if iguess > 3 or iguess < 0:
+      print('올바른 값을 입력하시오.')
+      continue
+    break
+  inputting = 0
+  if iguess == 1:
+    coin += 3
+    print('당신은 앞으로의 여정을 기대했습니다')
+    time.sleep(0.7)
+    print('당신의 기대에 응하듯 바닥에서 코인을 획득하였습니다 (코인+3)')
+    time.sleep(0.7)
+    cpcheck()
+    return
+  elif iguess == 2:
+    coinp += 1
+    print('당신은 앞으로의 여정을 걱정하였습니다')
+    time.sleep(0.7)
+    print('당신의 걱정은 앞으로의 여정을 침착하게 대처할 수 있게 합니다 (얻는 코인+1)')
+    time.sleep(0.7)
+  else:
+    print('당신은 과거의 일을 추억하였습니다')
+    time.sleep(0.7)
+    print('.')
+    time.sleep(0.5)
+    print('..')
+    time.sleep(0.5)
+    print('...')
+    time.sleep(2)
+    iguess = random.randint(1,4)
+    if iguess == 1:
+      if '별들의 축복' in bless:
+        print('당신은 별을 보던 하늘을 추억하였습니다!')
+        time.sleep(0.7)
+        print('마침 하늘 또한 수많은 별들이 떠 있습니다')
+        time.sleep(0.7)
+        print('당신의 기억이 더욱 선명해지고 있습니다')
+        time.sleep(0.7)
+        print('별들이 당신을 바라보는 듯 합니다')
+        time.sleep(0.7)
+        print("'별들의 축복'을 획득하였습니다")
+        paa = '별들의 축복'
+        i -= 1
+        blesses()
+      else:
+        print('당신은 별을 보던 하늘을 추억하였습니다!')
+        time.sleep(0.7)
+        print('밤하늘의 별들은 이미 당신을 바라보고 있는 듯 합니다')
+        time.sleep(0.7)
+        print('당신은 다시 여정을 시작하였습니다')
+        time.sleep(0.7)
+    else:
+      print('당신은 딱히 과거가 생각나지 않았습니다')
+      time.sleep(0.7)
+      print('당신은 다시 여정을 시작하였습니다')
+      time.s
+
+      leep(0.7)
+
+def gam():
+  global coinp, coin, gambler, coinm, inputting
+  if coin >= 1:
+    print('도박장 방문 이벤트!')
+    time.sleep(1)
+    print('도박이 가능합니다/ 아이고당첨시 0.5배, 실패시 0배, 대박 당첨시 2배, 초대박 당첨시 20배')
+    print(f'현재 코인:{coin}')
+  while True:
+    if coin >= 1:
+      try:
+        inputable
+        inputting = 1
+        guncoin = int(input('걸 코인을 정해주세요: '))
+      except:
+        print('가진 돈의 한에서 자연수를 적어주세요')
+        continue
+      if guncoin > coin or guncoin <= 0:
+        print('가진 돈의 한에서 자연수를 적어주세요')
+        continue
+      inputting = 0
+      coin -= guncoin
+      print('...')
+      time.sleep(1)
+      gamble = random.randint(1,100)
+      if 0 < gamble <= 33 :
+        print('아이고 당첨!')
+        print('아이고..(건 돈이 0.5배로 줄어듭니다)')
+        coin += guncoin*0.5
+      elif gamble == 34:
+        print('초대박 당첨!')
+        print('초대박! (건 돈이 20배로 늘어납니다)')
+        coin += guncoin*20
+      elif 34 < gamble <= 67 :
+        print('실패 당첨!')
+        print('실패..(건 돈이 사라집니다)')
+        if guncoin >= 10:
+          if not '도파민 중독 자격증' in ac:
+            time.sleep(2)
+            print('?')
+            ac.append('도파민 중독 자격증')
+            time.sleep(0.7)
+            print('도박사가 당신에게 무언가가 적힌 종이를 건넵니다')
+            time.sleep(0.7)
+            print('도파민 중독 자격증을 획득하였습니다')
+            time.sleep(0.7)
+            print('당신은 도파민에 중독되었습니다(코인+1)')
+            coin += 1
+            time.sleep(0.7)
+      else:
+        print('대박 당첨!')
+        print('이게 되네(건 돈이 2배가 됩니다)')
+        coin += guncoin*2
+        if guncoin >= 10:
+          if not '도박사 자격증' in ac:
+            time.sleep(2)
+            print('?')
+            ac.append('도박사 자격증')
+            coinp += 1
+            time.sleep(0.7)
+            print('도박사가 당신에게 무언가가 적힌 종이를 건넵니다')
+            time.sleep(0.7)
+            print('도박사 자격증을 획득하였습니다')
+            time.sleep(0.7)
+            print('얻는 코인이 1 상승하고 얻는 코인이 1미만으로 하락하지 않습니다')
+            time.sleep(0.7)
+            gambler = 1
+      return
+    else:
+      print('도박장에 온 거지 이벤트 발생!')
+      time.sleep(1)
+      print(f'도박장에 왔으나, 돈이 너무 적습니다. ({coin}개)')
+      print('모든 돈을 걸고 도박을 합니다. (실패 시 돈을 잃고, 성공 시 가진 코인이 1이 됩니다.)\n...')
+      time.sleep(1)
+      gamble = random.randint(1,2)
+      if gamble == 1:
+        print('실패 당첨!')
+        print('실패..(모든 돈을 잃습니다.)')
+        coin = 0
+      else:
+        print('대박 당첨!')
+        print('이게 되네 (코인이 1이 됩니다.)')
+        coin = 1
+        if not '거지코인' in ac:
+          time.sleep(2)
+          print('?')
+          coinm -= 1
+          time.sleep(0.7)
+          print('도박사가 당신에게 낡은 동전을 건넵니다')
+          time.sleep(0.7)
+          print("'거지코인' 획득!")
+          time.sleep(0.7)
+          ac.append('거지코인')
+          print('잃는 코인이 1 감소합니다.')
+          time.sleep(0.7)
+      return
+
+def taxy():
+  global coin, stage
+  print('택시 아저씨 이벤트!')
+  time.sleep(1)
+  print(f'코인 1개를 지불해 스테이지 1~10을 즉시 이동합니다')
+  time.sleep(1)
+  inputable()
+  inputting = 1
+  taxi = input('택시에 타시겠습니까? (네/아니오)')
+  inputting = 0
+  if taxi == '네':
+    coin -= 1
+    print('택시에 탑승하셨습니다. 코인 1개를 지불 하였습니다')
+    time.sleep(0.7)
+    print('택시 타고 가는중')
+    time.sleep(0.7)
+    print('택시 타고 가는중.')
+    time.sleep(0.7)
+    print('택시 타고 가는중..')
+    time.sleep(0.7)
+    print('택시 타고 가는중...')
+    time.sleep(1.5)
+    taxi = random.randint(1,10)
+    stage += taxi
+    print(f'택시를 타서 스테이지 {taxi}만큼 이동하셨습니다!')
+  else:
+    print('택시를 타지 않으셨습니다')
+
+def coinpm(m1,m2,cpm):
+  global coin, coinm
+  print(m1)
+  time.sleep(0.7)
+  print('%s (코인 {:+g})'.format(cpm) %(m2))
+  if cpm > 0:
+    cpcheck()
+  coin += cpm
+
+def lava():
+  global coin, dicep
+  print('지옥 이벤트4 발생!')
+  time.sleep(0.7)
+  print('당신은 용암위를 건너다 화상을 입었습니다. (주사위 숫자-0.5)')
+  time.sleep(0.7)
+  dicep -= 0.5
+  return
+
+def hund(): # guncoin=정답, gamble=플레이어 답, apt=시도횟수
+  global coin, coinp, coinm, inputting
+  guncoin = random.randint(1,99)
+  print('숫자 맞추기 이벤트!')
+  time.sleep(0.7)
+  print('1부터 99까지의 자연수 중 하나를 생각했습니다.')
+  time.sleep(0.7)
+  print('6번 안에 이 숫자를 맞추시오.')
+  time.sleep(0.7)
+  apt = 0
+  while apt != 6:
+    print(f'{apt + 1}차 시도')
+    while True:
+      try:
+        inputable()
+        inputting = 1
+        gamble = int(input('숫자 입력: '))
+      except:
+        print('1~99의 자연수를 입력하시오.')
+        continue
+      if gamble > 99 or gamble < 1:
+        print('1~99의 자연수를 입력하시오.')
+        continue
+      break
+    if gamble > guncoin:
+      print(f'{gamble}은/는 제가 생각한 숫자보다 큽니다.')
+    elif gamble < guncoin:
+      print(f'{gamble}은/는 제가 생각한 숫자보다 작습니다.')
+    else:
+      inputting = 0
+      print(f'{gamble}! 정답입니다! (코인 +{2+coinp})')
+      coin += 2 + coinp
+      cpcheck()
+      return
+    apt += 1
+  inputting = 0
+  print(f'정답은 {guncoin}이었습니다')
+  print(f'6번안에 정답을 맞추지 못하였습니다. (코인 -{2+coinm})')
+  coin -= 2 + coinm
+
+def fight():
+  global coin, coinp, coinm
+  print('맞장뜨기 이벤트 발생!')
+  time.sleep(0.7)
+  print('50%의 확률로 돈을 얻고 50% 확률로 돈을 잃습니다')
+  time.sleep(0.7)
+  print('싸우는 중.')
+  time.sleep(0.7)
+  print('싸우는 중..')
+  time.sleep(0.7)
+  print('싸우는 중...')
+  time.sleep(1.5)
+  apt = random.randint(1,2)
+  if apt == 1:
+    print(f'간신히 이겨냈습니다!(코인 +{2+coinp})')
+    coin += 2+coinp
+    cpcheck()
+  else:
+    print(f'개 처발렸습니다!(코인 -{2+coinm})')
+    coin -= 2+coinm
+
+def clover():
+  global dicep, coinp, coinm, inputting
+  print('특별 이벤트 발생!')
+  time.sleep(0.7)
+  print('당신은 우연히 클로버 밭을 발견하였습니다')
+  time.sleep(0.7)
+  print('행복과 행운의 기운이 가득한 찬 이곳에서 당신은 한 클로버를 집어들었습니다')
+  time.sleep(0.7)
+  print(''' 50% 3잎클로버  (얻는 코인+1)
+    25% 1잎 클로버  (얻는 코인+0.5)
+    10% 4잎 클로버  (얻는 코인+2)
+    5%  5잎 클로버  (잃는 코인-2)
+    5%  7잎 클로버  (주사위 숫자+1)
+    5%  20잎 클로버 (얻는 코인+3.5, 잃는 코인-2, 주사위 숫자+1)''')
+  inputable()
+  inputting = 1
+  input('아무거나 입력: ')
+  inputting = 0
+  iguess = random.randint(1,20)
+  if iguess >= 1 and iguess <= 10:
+    print('작은 행복을 집어들었습니다')
+    time.sleep(0.7)
+    print('3잎 클로버(얻는 코인+1)')
+    coinp += 1
+  elif iguess >= 11 and iguess <= 15:
+    print('과거의 기억을 집어들었습니다')
+    time.sleep(0.7)
+    print('2잎 클로버(잃는 코인-1)')
+    coinm -= 1
+  elif iguess == 16 or iguess == 17:
+    print('우연한 행운을 집어들었습니다')
+    time.sleep(0.7)
+    print('4잎 클로버(얻는 코인+2)')
+    coinp += 2
+  elif iguess == 18:
+    print('잠들어 있던 용기를 집어들었습니다')
+    time.sleep(0.7)
+    print('5잎 클로버(잃는 코인-2)')
+    coinm -= 2
+  elif iguess == 19:
+    print('잊고있던 추억을 집어들었습니다')
+    time.sleep(0.7)
+    print('7잎 클로버(주사위 숫자+1)')
+    dicep += 1
+  elif iguess == 20:
+    print('희망을 집어들었습니다!')
+    time.sleep(0.7)
+    print('20잎 클로버(얻는 코인+3.5, 잃는 코인-2, 주사위 숫자+1)')
+    coinp += 3.5
+    coinm -= 2
+    dicep += 1
+  return
+
+def famous():
+  global dicep, famevent, coinp, coinm, inputting
+  famevent -= 1
+  print('유명한 자의 길 이벤트 발생!')
+  print('''
+1. 주사위 숫자 +1
+2. 잃는 코인 1감소
+3. 얻는 코인 1증가''')
+  while True:
+    try:
+      inputable()
+      inputting = 1
+      guncoin = int(input('원하는 것을 선택하시오: '))
+    except:
+      print('1,2,3 중의 숫자를 입력해주세요.')
+      continue
+    inputting = 0
+    if guncoin == 1:
+      dicep += 1
+      print('상인들이 당신을 후원합니다')
+      time.sleep(0.7)
+      print('주사위 숫자가 1 증가했습니다.')
+      time.sleep(0.7)
+      cpcheck()
+    elif guncoin == 2:
+      coinm -= 1
+      print('시민들이 당신의 여정을 축복합니다')
+      time.sleep(0.7)
+      print('잃는 코인이 1 감소합니다.')
+      time.sleep(0.7)
+    elif guncoin == 3:
+      coinp += 1
+      print('시인들이 당신의 여정을 이야기 합니다')
+      time.sleep(0.7)
+      print('얻는 코인이 1 증가합니다.')
+      time.sleep(0.7)
+    else:
+      print('1,2,3 중의 숫자를 입력해주세요.')
+      time.sleep(0.7)
+      continue
+    return
+
+def outlaw():
+  global coin, coinm, dicep, inputting
+  print('강도 습격 이벤트!')
+  time.sleep(0.7)
+  print('강도가 당신을 습격하였습니다')
+  time.sleep(0.7)
+  print(f'코인 {2 + coinm}를 지불하거나 부상(주사위 숫자-1)을 입게 됩니다')
+  time.sleep(0.7)
+  inputable()
+  inputting = 1
+  iguess = input(f'코인 {2 + coinm}개를 지불 하시겠습니까?(네,아니오): ')
+  inputting = 0
+  if iguess == '네':
+    print('코인을 지불하셨습니다')
+    coin -= 2 + coinm
+    time.sleep(1)
+    return
+  else:
+    print('당신은 코인을 지불하지 않으셨습니다')
+    time.sleep(0.7)
+    print('부상(주사위 숫자-1)을 입었습니다')
+    time.sleep(0.7)
+    dicep -= 1
+    time.sleep(1)
+
+def devil():
+  global coinp, stage, coinm, inputting
+  print('악마의 거래 이벤트 발생!')
+  time.sleep(0.7)
+  print('악마가 당신에게 제안 합니다')
+  time.sleep(0.7)
+  print('앞으로 얻는 코인의 개수가 1개 늘어나지만 잃는 코인의 개수도 1개 늘어납니다 (일부 이벤트는 해당 안됨)')
+  time.sleep(0.7)
+  inputable()
+  inputting = 1
+  iguess = input('수락 하시겠습니까?(네/아니오)')
+  inputting = 0
+  if iguess == '네':
+    coinp += 1
+    coinm += 1
+    print('당신은 악마의 거래를 받아드렸습니다')
+    time.sleep(1)
+  else:
+    print('당신은 악마의  거래를 거절했습니다')
+    time.sleep(1)
+  return
+
+def acma3():
+  global coin
+  guncoin = round(coin*1/10)
+  if guncoin < 1:
+    guncoin = 1
+  coin -= guncoin
+  print('지옥 이벤트3 발생!')
+  time.sleep(0.7)
+  print(f'주위 불길이 당신의 코인을 녹입니다(가진코인-10%({guncoin}))')
+  time.sleep(0.7)
+
+def baram():
+  global select, inputting
+  print('바람의 정령 이벤트 발생!')
+  time.sleep(1)
+  print('바랑의 정령이 당신의 여정을 돕습니다')
+  time.sleep(0.7)
+  while True:
+    try:
+      inputable()
+      inputting = 1
+      select = int(input('다음 주사위 눈금 수를 정해주세요(1~6): '))
+    except:
+      print('1~6중의 정수를 입력해주세요')
+      continue
+    if select > 6 or select < 1:
+      print('1~6중의 정수를 입력해주세요')
+      continue
+    inputting = 0
+    print('바람이 당신의 주사위를 감싸기 시작합니다')
+    time.sleep(0.7)
+    print(f'다음 이동거리가 {select}이/가 되었습니다')
+    return
+
+def angel():
+  global select, inputting
+  print('기도 이벤트 발생!')
+  time.sleep(1)
+  print('천사의 형상 앞에서 당신은 기도를 합니다')
+  time.sleep(0.7)
+  while True:
+    try:
+      inputable()
+      inputting = 1
+      select = int(input('다음 주사위 눈금 수를 정해주세요(1~3): '))
+    except:
+      print('1~3중의 정수를 입력해주세요')
+      continue
+    if select > 3 or select < 1:
+      print('1~3중의 정수를 입력해주세요')
+      continue
+    inputting = 0
+    print('천사가 당신의 기도를 들었습니다')
+    time.sleep(0.7)
+    print('신성한 빛이 당신의 주사위에 흡수됩니다')
+    time.sleep(0.7)
+    print(f'다음 이동거리가 {select}이/가 되었습니다')
+    iguess = random.randint(1,10)
+    if iguess == 1:
+      if not '천사의 깃털' in ac:
+        time.sleep(2)
+        print('?')
+        time.sleep(0.7)
+        print('빛과 함께 깃털이 떨어졌습니다')
+        time.sleep(0.7)
+        print("'천사의 깃털' 획득!")
+        time.sleep(0.7)
+        print('주사위를 굴릴때 50% 확률로 숫자 +1(1~6숫자 주사위만)')
+        iguess = 0
+        ac.append('천사의 깃털')
+    return
+
+def shop():
+  global coin, coinp, coinm, dicep, inputting
+  print('상점 방문 이벤트!')
+  time.sleep(0.7)
+  cpcheck()
+  coin += 2 + coinp
+  print(f'코인 {2 + coinp}개를 드립니다. (현재 코인 {coin}개)')
+  cpcheck()
+  time.sleep(0.7)
+  if not 'J의 축복' in bless:
+    print(f'''
+  상품 목록
+  1. 주사위 숫자 +1 ({3 + coinm}코인)
+  2. 얻는 코인 +0.5 ({6 + coinm}코인)
+  3. J의 복권 (코인 0~{(4 + coinp) * 6}개 획득 가능) ({4 + coinm}코인)
+  4. 아무것도 안 사기
+''')
+    while True:
+      try:
+        inputable()
+        inputting = 1
+        guncoin = int(input('사고 싶은 상품 번호를 입력해주세요: '))
+      except:
+        print('1~4 중에서 입력해주세요')
+        continue
+      if guncoin > 4 or guncoin <1:
+        print('1~4 중에서 입력해주세요')
+        continue
+      break
+    inputting = 0
+    if guncoin == 1 and coin >= 3 + coinm:
+      coin -= 3 + coinm
+      print('주사위 숫자가 1 증가했습니다.')
+      dicep += 1
+    elif guncoin == 2 and coin >= 7 + coinm:
+      coin -= 6 + coinm
+      print('얻는 코인이 0.5 증가했습니다.')
+      coinp += 0.5
+    elif guncoin == 3 and coin >= 4 + coinm:
+      coin -= 4 + coinm
+      print('복권을 구매하였습니다.')
+      time.sleep(0.7)
+      guncoin = random.sample(range(1,45) , 7)
+      apt = guncoin[6]
+      guncoin.pop()
+      guncoin.sort()
+      print('1~45 사이의 번호 중 6개의 번호와 1개의 보너스 번호를 추첨하였습니다.')
+      print('숫자 6개를 입력하시오.')
+      lottolist = []
+      while len(lottolist) != 6:
+        try:
+          inputable()
+          inputting = 1
+          gamble = int(input(''))
+        except:
+          print('올바른 값을 입력하세요')
+          continue
+        if gamble > 45 or gamble < 1 or gamble in lottolist:
+          print('올바른 값을 입력하세요')
+          continue
+        lottolist.append(gamble)
+      lottolist.sort()
+      inputting = 0
+      time.sleep(0.7)
+      print(f'선택한 번호: {lottolist[0]} {lottolist[1]} {lottolist[2]} {lottolist[3]} {lottolist[4]} {lottolist[5]}')
+      time.sleep(0.9)
+      print('로또번호를 공개합니다.')
+      time.sleep(1)
+      print(f'번호는 {guncoin[0]} {guncoin[1]} {guncoin[2]} {guncoin[3]} {guncoin[4]} {guncoin[5]} - {apt} 였습니다!')
+      guncoin = list(set(guncoin) & set(lottolist)) # 두 리스트 사이의 교집합을 구하는 코드
+      if apt in lottolist:
+        apt = 4 + coinp
+      else: apt = 0
+      time.sleep(0.9)
+      print(f'코인 {len(guncoin) * (4 + coinp) + apt}개를 지급합니다.')
+      coin += len(guncoin) * (4 + coinp) + apt
+      if len(guncoin) * (4 + coinp) + apt > 0:
+        cpcheck()
+    else:
+      print('상점을 나갔습니다.')
+    return
+  print(f'''
+  상품 목록
+  1. 주사위 숫자 +1 ({3 + coinm}코인)
+  2. 얻는 코인 +0.5 ({6 + coinm}코인)
+  3. 잠김 (?코인)
+  4. 아무것도 안 사기
+''')
+  while True:
+    try:
+      inputable()
+      inputting = 1
+      guncoin = int(input('사고 싶은 상품 번호를 입력해주세요: '))
+    except:
+      print('1~4 중에서 입력해주세요')
+      continue
+    if guncoin > 4 or guncoin <1:
+      print('1~4 중에서 입력해주세요')
+      continue
+    if guncoin == 3:
+      print('해금 조건이 걸린 상품입니다. 다른 것을 구매하십시오.')
+      continue
+    break
+  inputting = 0
+  if guncoin == 1 and coin >= 3 + coinm:
+    coin -= 3 + coinm
+    print('주사위 숫자가 1 증가했습니다.')
+    dicep += 1
+  elif guncoin == 2 and coin >= 7 + coinm:
+    coin -= 6 + coinm
+    print('얻는 코인이 0.5 증가했습니다.')
+    coinp += 0.5
+  else: print('상점을 나갔습니다')
+  return
+
+def acma1():
+  global coinm, dicep
+  print('지옥 이벤트5 발생')
+  time.sleep(0.7)
+  print('이름모를 악마가 당신을 저주합니다(잃는 코인+1)')
+  coinm += 1
+  return
+
+def acma2():
+  global coinm
+  print('지옥 이벤트2 발생')
+  time.sleep(0.7)
+  print('숨어있던 악마가 당신을 공격합니다(잃는 코인+2)')
+  time.sleep(0.7)
+  coinm += 2
+  return
+
+def dice():
+  global select, dicenow, yatzybank, coin, dicep
+  dice = 0
+  if select != -1:
+    dice = select
+    return dice
+  else:
+    dice = random.choice(dicenow)
+    if '천사의 깃털' in ac:
+      iguess = random.randint(1,2)
+      if iguess == 1:
+        print('천사의 깃털이 약간의 빛을 바랩니다(주사위 숫자 +1)')
+        dice += 1
+        time.sleep(0.7)
+  dice += math.floor(dicep)
+  if yatzybank == 1:
+    print('주사위저금통이 코인을 주었습니다. (코인 +0.5)')
+    coin += 0.5
+  return dice
+
+def kan():
+  global stage, num
+  for i in range(num + 1):
+    k = stage + i
+    print(f'\r({stagenum[k]}) [{stagenum[k + 1]}] [{stagenum[k + 2]}] [{stagenum[k + 3]}] [{stagenum[k + 4]}]', end = '')
+    if i == 0: time.sleep(1)
+    else: time.sleep(1.5/num)
+  print()
+
+def blesses():
+  global sun, coinm, coinp, star, coin, stage, dicep, select, bless, paa, comp, edice, famevent
+
+  if paa == '복리의 축복':
+    print('당신은 이유 모를 안전함이 느껴집니다')
+    time.sleep(0.7)
+    print('코인을 획득할 때마다 얻는 돈이 0.2 상승합니다')
+    time.sleep(0.7)
+    bless.pop('복리의 축복')
+    comp = 1
+    bls.append('복리의 축복')
+
+  elif paa == '탐욕의 축복':
+    coin += 999
+    coinm += 100
+    print('끝없는 어둠 속에서 돈의 비가 떨어집니다')
+    time.sleep(0.7)
+    print('하지만 그 어둠은 당신을 향해 기분 나쁜 웃음을 짓는 듯 합니다')
+    time.sleep(0.7)
+    print('999코인을 획득하셨습니다')
+    time.sleep(0.7)
+    print('잃는 돈이 100코인 상승합니다')
+    time.sleep(0.7)
+    bless.pop('탐욕의 축복')
+    bls.append('탐욕의 축복')
+
+  elif paa == '회귀의 축복':
+    stage = 0
+    print('당신은 시간의 흐름이 뒤틀리는 것을 느낌니다')
+    time.sleep(0.7)
+    print('어느새 당신은 당신의 여정이 시작되는 곳에 도달해 있었습니다')
+    time.sleep(0.7)
+    print('스테이지 0으로 되돌아갔습니다')
+    time.sleep(0.7)
+    bless.pop('회귀의 축복')
+    bls.append('회귀의 축복')
+
+  elif paa == 'J의 축복':
+    coin *= 1.5
+    print('강한 빛이 당신을 바라보는 것을 느낍니다')
+    time.sleep(0.7)
+    print('동시에 당신은 주머니 속 코인이 요동치고 있다는 것을 알게 됐습니다')
+    time.sleep(0.7)
+    print('당신의 코인이 50% 증가하였습니다')
+    time.sleep(0.7)
+    bless.pop('J의 축복')
+    bls.append('J의 축복')
+
+  elif paa == '주사위의 축복':
+    print('하늘에서 주사위 하나가 떨어집니다.')
+    time.sleep(0.7)
+    print('그것은 수많은 각을 가져 마치 구처럼 보입니다')
+    time.sleep(0.7)
+    print('50각형 주사위를 획득하였습니다.')
+    time.sleep(0.7)
+    print('1번 1~50 중 원하는 수만큼 스테이지를 이동할수 있습니다')
+    bless.pop('주사위의 축복')
+    edice = 1
+    bls.append('주사위의 축복')
+
+  elif paa == '안개의 축복':
+    print('흰안개가 당신의 시야를 가리기 시작합니다')
+    time.sleep(0.7)
+    print('당신은 영혼이 정화되는 듯한 느낌을 받습니다')
+    time.sleep(0.7)
+    print('현재 적용된 주사위 감소 효과 및 잃는 코인 감소 효과가 제거됩니다')
+    time.sleep(0.7)
+    bless.pop('안개의 축복')
+    if coinm > 10:
+      coinm -= 10
+    else: coinm = 0
+    if dicep < -10:
+      dicep += 10
+    elif not dicep > 0: dicep = 0
+    bls.append('안개의 축복')
+
+  elif paa == '별들의 축복':
+    print('하늘의 수많은 별들이 쏟아집니다.')
+    time.sleep(0.7)
+    print('몇몇 별들은 별로 멀지 않은 곳에 떨어진 듯 합니다')
+    time.sleep(0.7)
+    print('특별 이벤트에 축복의 별 이벤트가 추가됩니다')
+    time.sleep(0.7)
+    bless.pop('별들의 축복')
+    star = 1
+    for i in range(stage,300):
+      if(i%5 == 0):
+        stagenum[i] = 49
+    bls.append('별들의 축복')
+
+  elif paa == '명성의 축복':
+    print('당신의 등에서 후광이 느껴집니다.')
+    time.sleep(0.7)
+    print('세상이 당신을 주시하는 느낌을 받습니다')
+    time.sleep(0.7)
+    print('앞으로 3번 이벤트가 유명한 자의 길로 확정됩니다')
+    time.sleep(0.7)
+    bless.pop('명성의 축복')
+    famevent = 3
+    bls.append('명성의 축복')
+
+  else:
+    stage = 300
+    print('당신은 시간의 흐름이 뒤틀리는 것을 느낍니다')
+    time.sleep(0.7)
+    print('당신은 어느새 지옥을 연상케 하는 장소에 도달해 있었습니다')
+    time.sleep(0.7)
+    print('스테이지 300으로 이동합니다')
+    time.sleep(0.7)
+    bless.pop('신속의 축복')
+    bls.append('신속의 축복')
+
+def blessevent():
+  global sun, bless, paa, coinm, coinp, i, inputting
+
+  pa = random.sample(range(0,i) , 3)
+  print('축복 이벤트 발생!')
+  sun += 1
+  time.sleep(0.7)
+  print('당신은 축복 중 한가지를 받을 수 있습니다.')
+  time.sleep(0.7)
+  print('획득한 축복은 더이상 이번 판에 등장하지 않습니다')
+  time.sleep(0.7)
+  blesskey = list(bless.keys())
+  print(f'''
+1: {blesskey[pa[0]]}: {bless.get(blesskey[pa[0]])}
+2: {blesskey[pa[1]]}: {bless.get(blesskey[pa[1]])}
+3: {blesskey[pa[2]]}: {bless.get(blesskey[pa[2]])}
+4: 축복을 거절한다(디버프 부여)''')
+
+  while True:
+    try:
+      inputable()
+      inputting = 1
+      qwerty = int(input('1~4중의 숫자를 선택해주세요: '))
+    except:
+      print('1,2,3,4 중의 숫자를 선택해주세요')
+      continue
+    inputting = 0
+    if qwerty == 1:
+      paa = blesskey[pa[0]]
+      i -= 1
+      blesses()
+    elif qwerty == 2:
+      paa= blesskey[pa[1]]
+      i -= 1
+      blesses()
+    elif qwerty == 3:
+      paa = blesskey[pa[2]]
+      i -= 1
+      blesses()
+    elif qwerty == 4:
+      print('''
+당신은 축복을 받는 것을 거절하셨습니다.
+당신은 약간 신들의 분노를 일으켰습니다. (얻는 코인-1, 잃는 코인+1)''')
+      coinm += 1
+      coinp -= 1
+    else:
+      print('1,2,3,4 중의 숫자를 선택해주세요')
+      continue
+    return
+
+def starevent():
+  global bless, paa, i, inputting
+
+  pa = random.randint(1,i)
+  print('별의 축복 이벤트 발생!')
+  time.sleep(0.7)
+  print('당신은 추락해있는 별 하나를 발견하였습니다')
+  time.sleep(0.7)
+  print('별 안에는 어떤 축복이 담겨있는듯 합니다')
+  time.sleep(0.7)
+  print('당신은 축복을 받을지 말지 선택하실수 있습니다.')
+  time.sleep(0.7)
+  print('획득한 축복은 더이상 이번 판에 등장하지 않습니다')
+  time.sleep(0.7)
+  blesskey = list(bless.keys())
+  print(f'''
+1: {blesskey[pa]}: {bless.get(blesskey[pa])}
+2: 별을 무시한다''')
+
+  while True:
+    try:
+      inputable()
+      inputting = 1
+      qwerty = int(input('숫자를 선택해주세요: '))
+    except:
+      print('1,2 중의 숫자를 선택해주세요')
+      continue
+    inputting = 0
+    if qwerty == 1:
+      paa = blesskey[pa]
+      i -= 1
+      blesses()
+    elif qwerty == 2:
+      print(''' 당신은 별을 무시하고 발걸음을 옮깁니다''')
+    else:
+      print('1,2 중의 숫자를 선택해주세요')
+      continue
+    return
+
+def sung():
+  pass
+
+def spevent(stri):
+  print('특별 이벤트 발생!') #왕의 조세 징수(명성의 축복) #마왕의 흔적
+  time.sleep(0.7)
+  if stri == 66: #지옥 특별 이벤트
+    sung()
+    return
+
+  if stri == 50: # 악마의 거래
+    devil()
+    return
+
+  if stri == 51: # 강도 습격
+    outlaw()
+    return
+
+  if stri == 52: # 상점 방문
+    shop()
+    return
+
+  if stri == 53: #성당
+    holy()
+    return
+
+  if stri == 54: #블마
+    black()
+    return
+
+  if stri == 55: #세금
+    tax()
+    return
+
+def event():
+  global coinm, coinp, stage, famevent, sun, star, fastinput
+
+  stri = stagenum[stage]
+  print('이벤트 계산 중입니다')
+  time.sleep(0.5)
+  print('...')
+  time.sleep(0.5)
+# 특별 이벤트
+  if famevent > 0: # 명성의 축복 전용 이벤트
+    famous()
+    return
+
+  if stage - 100 * sun >= 0: # 축복 이벤트
+     blessevent()
+     return
+
+  if stri == 49 and star == 1: # 별의 축복 특별 이벤트
+    if stage > 300:
+      print('특별 이벤트 발생!')
+      time.sleep(0.7)
+      print('당신은 추락한 별을 발견하였습니다')
+      time.sleep(0.7)
+      print('하지만 이곳의 열기와 악마들로 인해 별 안에는 아무것도 들어있지 않았습니다')
+      return
+    starevent()
+  elif stri == 49 and star == 0: # 별의 축복이 없지만 걸렸을 때 랜덤 특별 이벤트
+    spevent(random.randint(50,53))
+  elif stri > 49:
+    spevent(stri) # 기존에 정해져 있던 특별 이벤트
+
+#################################
+
+#히든 이벤트
+  if stage <= 0: # 0이하 스테이지 히든 이벤트
+    e()
+    stage = 0
+
+  if stri == -1: # 1스테이지 히든 이벤트
+    ony()
+
+####################################
+
+#메인 이벤트
+  if stri == 1: # 맞장뜨기
+    fight()
+
+  if stri == 2: # 삥 뜯기기
+    coinpm('삥 뜯기기 이벤트 발생!','코인을 삥 뜯겼습니다',-1 - coinm)
+
+  if stri == 3: # 복권 당첨
+    coinpm('코인줍기 이벤트 발생!','우연히 코인을 주었습니다',1 + coinp)
+
+  if stri == 4: # 도박장 / 도박장 거지
+    gam()
+
+  if stri == 5: # 택시 아저씨
+    taxy()
+
+  if stri == 6: # 천사의 축복
+    angel()
+
+  if stri == 7: # 숫자 맞추기
+    hund()
+
+  if stri == 8: # 무언가 낙하
+    drag()
+
+  if stri == 9: # 찬양
+    worship()
+
+  if stri == 10: # 기억
+    memory()
+
+  if stri == 11: # 코인뭉치 줍기
+    coinpm('코인뭉치 이벤트 발생!','코인뭉치를 주웠습니다',2 + coinp)
+
+  if stri == 12: # 코인주머니 줍기
+    coinpm('코인주머니 이벤트 발생!','코인주머니를 주웠습니다',3 + coinp)
+
+  if stri == 13: # 코인 털리기
+    coinpm('코인 털리기 이벤트 발생!','깡패에게 코인을 털렸습니다',-2 - coinm)
+
+  if stri == 14: #천사 깃털 무한 공급 방지용 상위호환 나중에 좀 바꿀거
+    baram()
+
+  if stri == 15: #1분 후 숫자 입력
+    if fastinput == 0:
+      fastinput = 1
+      game = Fastinput()
+      game.mainevent()
+    else:
+      print('쉬어가기 이벤트 발생!')
+      time.sleep(1)
+      print('아무 일도 일어나지 않았습니다.')
+      time.sleep(0.7)
+
+  if stri == 20: #지옥 이벤트1
+    coinpm('지옥 이벤트1 발생!','악마로 부터 도망치다 코인을 잃었습니다',-3 - coinm)
+
+  if stri == 21: #지옥 이벤트4
+    lava()
+
+  if stri == 22: #지옥이벤트5
+    acma1()
+
+  if stri == 23: #지옥이벤트2
+    acma2()
+ #--------------------------희귀 이벤트
+  if stri == 77:
+    seven()
+
+  if stri == 24: #지옥 이벤트3
+    acma3()
+
+# 300 ~ 400 -> 지옥 1~100 인식의 변화
+# 300이 그냥의 끝 이후 100까지 갈시 보상
+#
+
+coinm = tuto()
+if coinm == 1:
+  try:
+    print('저장 데이터를 불러오고 있습니다...')
+    coinm = open('save.txt','r')
+    dicep = coinm.read()
+    exec(dicep)
+    coinm.close()
+  except:
+    print('저장 데이터를 불러오지 못했습니다.')
+  coinm = 0
+  dicep = 0
+print('**************LuCKy DIcE***************')
+print('당신은 새로운 여정을 시작하셨습니다')
+time.sleep(1)
+print(f'게임 시작/현재코인({coin})')
+while True:
+  if thend == 1:
+    time.sleep(1)
+    break
+  if coin <= 0:
+    print('당신은 모든 돈을 잃었습니다')
+    time.sleep(2)
+    print('.')
+    time.sleep(1)
+    print('..')
+    time.sleep(1)
+    print('...')
+    time.sleep(1)
+    print()
+    print('더이상 여정을 계속하기에는 불가능할 것 같습니다')
+    time.sleep(1)
+    print('당신은 당신이 왔던 길을 되돌아가 다시 새로운 여정을 준비합니다')
+    time.sleep(1)
+    print()
+    print('당신의 여정이 마침내 끝을 맞이하였습니다')
+    print(f'{stage}달성')
+    break
+  if stage > 300 and hell == 0:
+    print('지옥에 입장하였습니다')
+    time.sleep(0.7)
+    print('당신의 여정이 얼마 남지 않았습니다')
+    time.sleep(0.7)
+    hell = 1
+  elif stage <= 300 and hell == 1:
+    print('당신은 지옥을 빠져나왔습니다')
+    time.sleep(0.7)
+    hell = 0
+  if edice == 1:
+    inputable()
+    inputting = 1
+    edice = input('50각형 주사위를 굴릴까요? (예/아니오): ')
+    if edice == '예':
+      while True:
+        try:
+          select = int(input('숫자 몇으로 하겠습니까(1~50)'))
+        except:
+          print('1~50 중 정수만 가능합니다')
+          continue
+        if select <= 0 or select > 50:
+          print('1~50 중 정수만 가능합니다')
+          continue
+        break
+      inputting = 0
+      time.sleep(0.7)
+      print(f'다음 이동거리가 {select}이/가 되었습니다')
+      time.sleep(0.7)
+      edice = 0
+    else:
+      inputting = 0
+      edice = 1
+  print('주사위를 굴립니다')
+  time.sleep(2)
+  num = dice()
+  print(f'{num}!')
+  time.sleep(1)
+  select = -1
+  kan()
+  print(f'현재 스테이지 {stage}+{num}->{stage + num}')
+  stage += num
+  time.sleep(1)
+  if stage == 444:
+    print('')
+  if stage >= 400:
+    time.sleep(2)
+    print('.')
+    time.sleep(1)
+    print('..')
+    time.sleep(1)
+    print('...')
+    time.sleep(1)
+    print()
+    print('당신은 지옥을 벗어났습니다')
+    time.sleep(1)
+    print()
+    print('당신의 여정이 마침내 끝을 맞이하였습니다')
+    time.sleep(1)
+    print()
+    print("당신은 게임을 승리하였습니다 (노말 엔딩 '게임승리')")
+    time.sleep(1)
+    break
+  event()
+  if rounding == 1:
+    print('올림이 적용되었습니다')
+    coin = math.ceil(coin)
+  if coinm < 0:
+    coinm = 0
+  if coinp < gambler:
+    coinp = gambler
+  time.sleep(0.7)
+  if dicep == -2:
+    print('다리의 고통이 당신의 여정을 방해합니다. (코인-1)')
+    coin -= 1
+  elif dicep == -3 or dicep == -4:
+    print('다리의 강한고통이 당신의 걸음을 막습니다. (코인-2)')
+    coin -= 2
+  elif dicep <= -5:
+    print('불에 타는듯한 고통이 당신의 다리에 전해집니다. (코인-4)')
+    coin -= 4
+  time.sleep(1.4)
+  print('                            코인:{:g}'.format(coin)) # 의미없는 소수점 제거용으로 바꿈 (5.0 --> 5 로 표시)
+  print('''                            얻는 코인 증가:{:g}
+                            잃는 코인 증가:{:g}
+                            주사위 숫자 증감 :{:g}'''.format(coinp, coinm, dicep))
+  print(f"                            악세사리:{', '.join(ac) if ac else '없음'}")
+  print(f"                            축복:{', '.join(bls) if bls else '없음'}")
