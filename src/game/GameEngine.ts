@@ -22,6 +22,10 @@ export const beginRoll = (
   const roll = rollDice(state, random)
   const stageBefore = state.progress.stage
 
+  if (roll.source === 'forced') {
+    state.dice.forcedMove = null
+  }
+
   state.progress.gameStatus = 'rolling'
 
   return {
