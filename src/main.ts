@@ -82,6 +82,7 @@ const gaugeMaxFor = (coin: number): number => {
 
 const formatNumber = (value: number): string => Number.isInteger(value) ? String(value) : String(Math.round(value * 1000) / 1000)
 const signed = (value: number): string => value >= 0 ? `+${formatNumber(value)}` : formatNumber(value)
+const currentGameStatus = (): GameStatus => state.progress.gameStatus
 
 const statusLabel = (status: GameStatus): string => {
   switch (status) {
@@ -334,7 +335,7 @@ const playRollSequence = async (): Promise<void> => {
 
   await sleep(timing.move)
   completeMove(state, currentMove)
-  if (state.progress.gameStatus === 'event') {
+  if (currentGameStatus() === 'event') {
     prepareCurrentEvent(state)
   }
   render()
@@ -344,7 +345,8 @@ const handleCompleteEvent = (): void => {
   if (state.progress.gameStatus !== 'event-result') return
   completeCurrentEvent(state)
 
-  if (state.progress.gameStatus === 'ready' || state.progress.gameStatus === 'game-over') {
+  const statusAfterEvent = currentGameStatus()
+  if (statusAfterEvent === 'ready' || statusAfterEvent === 'game-over') {
     currentMove = null
   }
 
