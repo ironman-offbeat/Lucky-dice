@@ -351,7 +351,7 @@ const render = (): void => {
         <p class="focus-panel__eyebrow">${focus.eyebrow}</p>
         ${renderRollReadout()}
         <button class="primary-action" type="button" data-action="roll" ${focus.disabled ? 'disabled' : ''}>${focus.button}</button>
-        <p class="phase-note">Phase 7B-2 · Black Market + Item Effects</p>
+        <p class="phase-note">Phase 7 · Complete</p>
       </section>
 
       ${renderEventPanel()}

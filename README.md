@@ -4,7 +4,7 @@ Mobile-first web remake of the original Python console game **Lucky Dice**.
 
 ## Current phase
 
-Phase 7B-2 foundation:
+Phase 7 complete:
 
 - Vite + TypeScript
 - Mobile portrait-first layout
@@ -27,11 +27,12 @@ Phase 7B-2 foundation:
 - J lottery uses a serializable minigame state and mobile 1–45 number picker
 - Special event 54 black market is live with up to four fixed offers, repeated purchasing, and item removal after purchase
 - Item effects are centralized in ItemEngine instead of black-market-specific branches
-- Black-market 777 roulette is centralized in RouletteEngine for later reuse by rare event 77
+- Black-market 777 roulette is centralized in RouletteEngine and reused by rare event 77
+- Rare event 77 is live with exactly three free spin opportunities and optional early exit
 - Memory Saver now records a save request flag for the later LocalStorage save phase
 - Original Python implementation preserved under `legacy/`
 
-All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Black market 54 and its item-effect execution are implemented. Rare event 77 can now reuse RouletteEngine but its separate three-chance event shell remains for the next step. Hidden and blessing events also remain for later phases.
+All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 7 event port is complete: hell, core special, shop, black market, item effects and rare roulette 77 are live. Rare event 77 retains the original one-per-run placement and three free spin opportunities. Hidden/system events and the blessing system remain for the next phase.
 
 ## Local development
 

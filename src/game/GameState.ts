@@ -14,7 +14,7 @@ export type DiceType = 'normal' | 'dark' | 'special-50'
 
 export type EventId = number | 'blessing' | 'fame' | 'hidden-zero'
 
-export type MinigameKind = 'number-guess' | 'worship' | 'memory' | 'lottery' | 'black-market'
+export type MinigameKind = 'number-guess' | 'worship' | 'memory' | 'lottery' | 'black-market' | 'rare-roulette'
 export type MinigamePhase = 'input' | 'countdown' | 'reveal'
 export type TimedChallengeStatus = 'idle' | 'scheduled' | 'active' | 'resolved'
 

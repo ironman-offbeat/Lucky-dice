@@ -105,7 +105,7 @@ const definitions: readonly EventDefinition[] = [
   definition(54, '암시장', 'special', '무작위 상품과 777 룰렛을 이용할 수 있는 특별 이벤트입니다.', { implemented: true, choices: [ { id: 'enter-market', label: '암시장에 들어간다' }, { id: 'leave-market', label: '지나친다' } ] }),
   definition(55, '세금', 'special', '세금을 납부하거나 도주를 시도할 수 있습니다.', { implemented: true, choiceLabel: '세금징수원을 상대한다' }),
   definition(66, '지옥 · 고요', 'hell', '원본의 빈 sung() 슬롯을 명시적인 휴식 이벤트로 처리합니다.', { implemented: true, choiceLabel: '계속' }),
-  definition(77, '777 룰렛', 'rare', '한 판에 한 번만 배치되는 희귀 룰렛 이벤트입니다.'),
+  definition(77, '777 룰렛', 'rare', '한 판에 한 번만 배치되며 최대 3번 무료로 돌릴 수 있는 희귀 룰렛 이벤트입니다.', { implemented: true, choices: [ { id: 'spin-rare-roulette', label: '룰렛을 돌린다' }, { id: 'leave-rare-roulette', label: '돌리지 않고 떠난다' } ] }),
 ]
 
 const registry = new Map<EventId, EventDefinition>(

@@ -285,6 +285,40 @@ const renderBlackMarket = (state: Readonly<GameState>): string => {
   `
 }
 
+
+const renderRareRoulette = (state: Readonly<GameState>): string => {
+  const minigame = state.event.minigame
+  if (!minigame || minigame.kind !== 'rare-roulette') return ''
+
+  const remaining = Math.max(
+    0,
+    minigame.maxAttempts - minigame.attemptsUsed,
+  )
+
+  const roulette = minigame.rouletteDigits
+    ? `<div class="roulette-result">[${minigame.rouletteDigits.join('][')}]</div>`
+    : ''
+
+  return `
+    <p class="minigame-feedback">${escapeHtml(minigame.feedback ?? '')}</p>
+    ${roulette}
+    <div class="rare-roulette-chances">
+      <span>남은 무료 기회</span>
+      <strong>${remaining} / ${minigame.maxAttempts}</strong>
+    </div>
+    <button
+      class="event-choice market-roulette"
+      type="button"
+      data-rare-roulette-action="spin-rare-roulette"
+    >룰렛을 다시 돌린다</button>
+    <button
+      class="event-choice"
+      type="button"
+      data-rare-roulette-action="leave-rare-roulette"
+    >그만두고 떠난다</button>
+  `
+}
+
 export const renderMinigamePanel = (
   state: Readonly<GameState>,
   currentEvent: Readonly<EventDefinition>,
@@ -302,8 +336,10 @@ export const renderMinigamePanel = (
     body = renderMemory(state)
   } else if (minigame.kind === 'lottery') {
     body = renderLottery(state)
-  } else {
+  } else if (minigame.kind === 'black-market') {
     body = renderBlackMarket(state)
+  } else {
+    body = renderRareRoulette(state)
   }
 
   return `
@@ -494,6 +530,26 @@ export const bindInteractiveEventUI = (
       }
 
       const choiceId = button.dataset.marketAction
+      if (!choiceId) return
+
+      resolveCurrentMinigameAction(state, { choiceId })
+      rerender()
+    })
+  })
+
+  const rareRouletteButtons = root.querySelectorAll<HTMLButtonElement>(
+    '[data-rare-roulette-action]',
+  )
+  rareRouletteButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      if (
+        state.progress.gameStatus !== 'minigame' ||
+        state.event.minigame?.kind !== 'rare-roulette'
+      ) {
+        return
+      }
+
+      const choiceId = button.dataset.rareRouletteAction
       if (!choiceId) return
 
       resolveCurrentMinigameAction(state, { choiceId })
