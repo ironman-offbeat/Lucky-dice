@@ -1434,3 +1434,200 @@ button {
     border-radius: 22px;
   }
 }
+
+
+/* Focus artwork + compact mobile HUD */
+.game-shell {
+  width: min(100%, 460px);
+  padding: var(--safe-top) 12px var(--safe-bottom);
+  gap: 9px;
+}
+
+.hud {
+  border-radius: 17px;
+  padding: 11px 12px 10px;
+}
+
+.brand {
+  gap: 6px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.stage-label {
+  font-size: 10px;
+}
+
+.stage-progress {
+  height: 3px;
+  margin-top: 7px;
+}
+
+.coin-panel {
+  margin-top: 8px;
+}
+
+.coin-panel__label {
+  font-size: 10px;
+}
+
+.coin-panel__value {
+  font-size: clamp(21px, 6.5vw, 27px);
+}
+
+.coin-gauge {
+  height: 8px;
+  margin-top: 7px;
+}
+
+.coin-panel__scale {
+  margin-top: 3px;
+  font-size: 8px;
+}
+
+.stats-strip {
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.stats-strip > div {
+  padding: 6px 5px;
+  border-radius: 9px;
+}
+
+.stats-strip span {
+  margin-bottom: 2px;
+  font-size: 8px;
+}
+
+.stats-strip strong {
+  font-size: 12px;
+}
+
+.focus-panel {
+  min-height: 235px;
+  padding: 14px 14px 13px;
+  border-radius: 20px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(7, 8, 10, 0.48),
+      rgba(7, 8, 10, 0.68)
+    ),
+    url("/images/focus-pattern-gold.webp") center / cover no-repeat;
+}
+
+.focus-panel::before {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(4, 5, 7, 0.14),
+      rgba(4, 5, 7, 0.32)
+    );
+  opacity: 1;
+}
+
+.focus-panel::after {
+  background:
+    radial-gradient(
+      circle at 50% 32%,
+      rgba(5, 6, 8, 0.02) 0 54px,
+      rgba(5, 6, 8, 0.22) 92px,
+      rgba(5, 6, 8, 0.46) 78%
+    );
+}
+
+.dice-orbit {
+  width: 108px;
+  height: 108px;
+}
+
+.dummy-die {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 18px rgba(216, 184, 106, 0.08),
+    0 12px 26px rgba(0, 0, 0, 0.42);
+}
+
+.rune--1 {
+  left: 14px;
+  top: 10px;
+  font-size: 17px;
+}
+
+.rune--2 {
+  right: 13px;
+  top: 24px;
+  font-size: 20px;
+}
+
+.rune--3 {
+  left: 27px;
+  bottom: 8px;
+  font-size: 15px;
+}
+
+.focus-panel__eyebrow {
+  margin: 10px 0 8px;
+  font-size: 11px;
+}
+
+.primary-action {
+  width: min(100%, 280px);
+  min-height: 48px;
+  border-radius: 14px;
+}
+
+.roll-readout {
+  width: min(100%, 280px);
+  min-height: 52px;
+  margin-bottom: 8px;
+  gap: 6px;
+}
+
+.roll-readout > div {
+  min-height: 48px;
+  padding: 6px 4px;
+  border-radius: 10px;
+}
+
+.roll-readout span {
+  margin-bottom: 2px;
+  font-size: 8px;
+}
+
+.roll-readout strong {
+  font-size: 16px;
+}
+
+.roll-readout__move strong {
+  font-size: 19px;
+}
+
+@media (max-height: 760px) {
+  .game-shell {
+    gap: 7px;
+  }
+
+  .hud {
+    padding-top: 9px;
+    padding-bottom: 8px;
+  }
+
+  .focus-panel {
+    min-height: 218px;
+    padding-top: 12px;
+  }
+
+  .dice-orbit {
+    width: 100px;
+    height: 100px;
+  }
+
+  .dummy-die {
+    width: 68px;
+    height: 68px;
+  }
+}
