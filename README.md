@@ -4,7 +4,7 @@ Mobile-first web remake of the original Python console game **Lucky Dice**.
 
 ## Current phase
 
-Phase 8B complete:
+Phase 9A persistence:
 
 - Vite + TypeScript
 - Mobile portrait-first layout
@@ -39,10 +39,16 @@ Phase 8B complete:
 - Stage 1 hidden event (-1) is live with expectation, worry and memory choices
 - Stage 1 memory preserves the legacy 25% star-memory branch and can grant Stars Blessing only while it remains available
 - System event 0 is an explicit no-effect rest event instead of a framework placeholder
+- Versioned LocalStorage save envelope (v1) stores the complete serializable GameState
+- Save loading validates nested state shape and rejects corrupt, unsupported, or transient-animation saves
+- Autosave runs at stable rendered states, covering movement completion, event choices, purchases, blessings, minigame progress, event completion, game over, and victory
+- Continue/New Game startup flow plus manual Save/Load controls are live
+- Timed challenge trigger/expiry timestamps persist across reloads; browser timeout handles are never serialized
+- Memory minigame reveal resumes safely from countdown, and Memory Saver now forces an immediate persisted save
 - Memory Saver now records a save request flag for the later LocalStorage save phase
 - Original Python implementation preserved under `legacy/`
 
-All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 8 event-layer port is complete: blessings, blessing-derived star/fame paths, hidden Stage <= 0 and Stage 1 events, and system rest slot 0 are live. Legacy making/thend/hgate hidden-ending remnants are intentionally not activated because the source main loop never reaches them as a completed gameplay path. The next major phase is save/load and persistence.
+All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 9A persistence is live. Save data is browser-local JSON under a versioned LocalStorage key, replacing the unsafe legacy save.txt + exec() model. Saves stay on the current browser/device and do not sync across devices. The next persistence step is save UX hardening and regression testing before visual polish.
 
 ## Local development
 

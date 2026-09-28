@@ -14,7 +14,15 @@ import {
   prepareCurrentEvent,
   resolveCurrentEventAction,
 } from './game/EventEngine'
-import { INITIAL_GAME_STATE, type GameStatus } from './game/GameState'
+import type { GameStatus } from './game/GameState'
+import {
+  canPersistGameState,
+  createNewGameState,
+  deleteSavedGame,
+  loadGame,
+  saveGame,
+  type SaveLoadResult,
+} from './game/SaveEngine'
 import {
   bindInteractiveEventUI,
   renderMinigamePanel,
@@ -28,8 +36,24 @@ if (!app) {
   throw new Error('App root was not found.')
 }
 
-const state = structuredClone(INITIAL_GAME_STATE)
+const startupSave = loadGame()
+let state = createNewGameState()
 initializeEventSchedule(state)
+
+type LaunchMode = 'playing' | 'resume-prompt'
+
+let launchMode: LaunchMode =
+  startupSave.ok ? 'resume-prompt' : 'playing'
+let lastSavedAt: number | null =
+  startupSave.ok ? startupSave.savedAt : null
+let lastPersistedFingerprint: string | null =
+  startupSave.ok ? JSON.stringify(startupSave.state) : null
+let persistenceNotice =
+  !startupSave.ok &&
+  startupSave.reason !== 'missing'
+    ? '기존 저장 데이터를 읽지 못해 새 게임 상태로 시작합니다.'
+    : ''
+
 let currentMove: StageMoveResult | null = null
 let runeTimer: number | null = null
 let visibleRunes = ['⌁', 'ᚱ', '⌬']
@@ -91,6 +115,117 @@ const formatNumber = (value: number): string => Number.isInteger(value) ? String
 const signed = (value: number): string => value >= 0 ? `+${formatNumber(value)}` : formatNumber(value)
 const currentGameStatus = (): GameStatus => state.progress.gameStatus
 
+const saveFailureCopy = (result: SaveLoadResult): string => {
+  if (result.ok) return ''
+  switch (result.reason) {
+    case 'missing': return '저장 데이터가 없습니다.'
+    case 'unsupported-version': return '현재 버전에서 읽을 수 없는 저장 데이터입니다.'
+    case 'invalid-json':
+    case 'invalid-state': return '저장 데이터가 손상되어 불러올 수 없습니다.'
+    case 'storage-unavailable': return '이 브라우저에서는 LocalStorage를 사용할 수 없습니다.'
+    default: return '현재 상태에서는 저장할 수 없습니다.'
+  }
+}
+
+const formatSaveTime = (savedAt: number): string =>
+  new Date(savedAt).toLocaleString('ko-KR', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+const shouldSkipAutosave = (): boolean =>
+  state.progress.gameStatus === 'minigame' &&
+  state.event.minigame?.kind === 'memory' &&
+  state.event.minigame.phase !== 'input'
+
+const persistState = (force = false, manual = false): boolean => {
+  if (launchMode !== 'playing') return false
+  if (!canPersistGameState(state)) return false
+  if (shouldSkipAutosave() && !force) return false
+
+  const memorySaveRequested = state.inventory.memorySaveRequested
+  const fingerprint = JSON.stringify(state)
+  if (!force && !memorySaveRequested && fingerprint === lastPersistedFingerprint) return true
+
+  const result = saveGame(state)
+  if (!result.ok) {
+    if (manual || memorySaveRequested) {
+      persistenceNotice = result.reason === 'unstable-state'
+        ? '현재 연출 중에는 저장할 수 없습니다.'
+        : '저장에 실패했습니다.'
+    }
+    return false
+  }
+
+  state.inventory.memorySaveRequested = false
+  lastSavedAt = result.savedAt
+  lastPersistedFingerprint = JSON.stringify(state)
+  if (memorySaveRequested) {
+    persistenceNotice = '메모리세이버로 현재 진행 상태를 저장했습니다.'
+  } else if (manual) {
+    persistenceNotice = '현재 진행 상태를 저장했습니다.'
+  }
+  return true
+}
+
+const restoreState = (result: SaveLoadResult): boolean => {
+  if (!result.ok) {
+    persistenceNotice = saveFailureCopy(result)
+    return false
+  }
+  stopRuneShuffle()
+  state = structuredClone(result.state)
+  initializeEventSchedule(state)
+  currentMove = null
+  visibleRunes = nextRuneSet()
+  lastSavedAt = result.savedAt
+  lastPersistedFingerprint = JSON.stringify(state)
+  persistenceNotice = '저장된 진행 상태를 불러왔습니다.'
+  launchMode = 'playing'
+  return true
+}
+
+const startNewGame = (): void => {
+  stopRuneShuffle()
+  deleteSavedGame()
+  state = createNewGameState()
+  initializeEventSchedule(state)
+  currentMove = null
+  visibleRunes = nextRuneSet()
+  lastSavedAt = null
+  lastPersistedFingerprint = null
+  persistenceNotice = '새 게임을 시작했습니다.'
+  launchMode = 'playing'
+}
+
+const renderResumePrompt = (): void => {
+  if (!startupSave.ok) return
+  app.innerHTML = `
+    <main class="resume-shell" aria-label="Saved game">
+      <section class="resume-card">
+        <span class="resume-card__eyebrow">LUCKY DICE</span>
+        <h1>저장된 여정이 있습니다</h1>
+        <div class="resume-card__stats">
+          <div><span>STAGE</span><strong>${startupSave.state.progress.stage}</strong></div>
+          <div><span>COIN</span><strong>${formatNumber(startupSave.state.economy.coin)}</strong></div>
+        </div>
+        <p>마지막 저장 ${formatSaveTime(startupSave.savedAt)}</p>
+        <button class="primary-action" type="button" data-action="continue-game">CONTINUE</button>
+        <button class="secondary-action" type="button" data-action="new-game">NEW GAME</button>
+      </section>
+    </main>
+  `
+  app.querySelector<HTMLButtonElement>('[data-action="continue-game"]')?.addEventListener('click', () => {
+    restoreState(startupSave)
+    render()
+  })
+  app.querySelector<HTMLButtonElement>('[data-action="new-game"]')?.addEventListener('click', () => {
+    startNewGame()
+    render()
+  })
+}
 const statusLabel = (status: GameStatus): string => {
   switch (status) {
     case 'rolling':
@@ -329,6 +464,13 @@ const renderEventPanel = (): string => {
 }
 
 const render = (): void => {
+  if (launchMode === 'resume-prompt') {
+    renderResumePrompt()
+    return
+  }
+
+  persistState()
+
   const gaugeMax = gaugeMaxFor(state.economy.coin)
   const gaugePercent = Math.min(100, Math.max(0, (state.economy.coin / gaugeMax) * 100))
   const focus = focusCopy()
@@ -386,10 +528,18 @@ const render = (): void => {
         ${renderRollReadout()}
         ${renderSpecialDiceControl()}
         <button class="primary-action" type="button" data-action="roll" ${focus.disabled ? 'disabled' : ''}>${focus.button}</button>
-        <p class="phase-note">Phase 8B · Hidden + System Events</p>
+        <p class="phase-note">Phase 9A · Local Save</p>
       </section>
 
       ${renderEventPanel()}
+
+      <section class="save-bar" aria-label="Save controls">
+        <div class="save-bar__actions">
+          <button type="button" data-action="save-game" ${canPersistGameState(state) && !shouldSkipAutosave() ? '' : 'disabled'}>SAVE</button>
+          <button type="button" data-action="load-game" ${lastSavedAt === null ? 'disabled' : ''}>LOAD</button>
+        </div>
+        <span>${persistenceNotice || (lastSavedAt !== null ? `AUTO · ${formatSaveTime(lastSavedAt)}` : 'AUTO SAVE READY')}</span>
+      </section>
 
       <footer class="inventory-bar">
         <button type="button" disabled><span>✦</span> 축복 <strong>${state.blessings.owned.length}</strong></button>
@@ -471,12 +621,24 @@ const bindActions = (): void => {
     consumeSpecialDice(state, Number(input.value))
     void playRollSequence()
   })
+  const saveButton = app.querySelector<HTMLButtonElement>('[data-action="save-game"]')
+  saveButton?.addEventListener('click', () => {
+    persistState(true, true)
+    render()
+  })
+
+  const loadButton = app.querySelector<HTMLButtonElement>('[data-action="load-game"]')
+  loadButton?.addEventListener('click', () => {
+    restoreState(loadGame())
+    render()
+  })
   const choiceButtons = app.querySelectorAll<HTMLButtonElement>('[data-event-choice]')
   choiceButtons.forEach((button) => {
     button.addEventListener('click', () => {
       const choiceId = button.dataset.eventChoice
       if (!choiceId || state.progress.gameStatus !== 'choice') return
       resolveCurrentEventAction(state, { choiceId })
+      persistState(true)
       render()
     })
   })
@@ -494,6 +656,7 @@ const bindActions = (): void => {
       choiceId,
       numericValue: Number(input.value),
     })
+    persistState(true)
     render()
   })
 
