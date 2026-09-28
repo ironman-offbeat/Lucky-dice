@@ -1511,30 +1511,25 @@ button {
   background:
     linear-gradient(
       180deg,
-      rgba(7, 8, 10, 0.48),
-      rgba(7, 8, 10, 0.68)
+      rgba(5, 6, 8, 0.18),
+      rgba(5, 6, 8, 0.26)
     ),
     url("/images/focus-pattern-gold.webp") center / cover no-repeat;
 }
 
 .focus-panel::before {
   background:
-    linear-gradient(
-      180deg,
-      rgba(4, 5, 7, 0.14),
-      rgba(4, 5, 7, 0.32)
+    radial-gradient(
+      circle at 50% 32%,
+      rgba(4, 5, 7, 0.12) 0 58px,
+      rgba(4, 5, 7, 0.03) 108px,
+      transparent 68%
     );
   opacity: 1;
 }
 
 .focus-panel::after {
-  background:
-    radial-gradient(
-      circle at 50% 32%,
-      rgba(5, 6, 8, 0.02) 0 54px,
-      rgba(5, 6, 8, 0.22) 92px,
-      rgba(5, 6, 8, 0.46) 78%
-    );
+  background: none;
 }
 
 .dice-orbit {
