@@ -1,10 +1,43 @@
 import type { GameState } from '../game/GameState'
+import { getShopPrice } from '../game/ShopEngine'
 import type { EventChoiceDefinition, EventDefinition } from './types'
 
 export const presentEventDefinition = (
   state: Readonly<GameState>,
   definition: Readonly<EventDefinition>,
 ): EventDefinition => {
+  if (definition.id === 52) {
+    const choices: EventChoiceDefinition[] = [
+      {
+        id: 'buy-dice',
+        label: `주사위 보정 +1 · ${getShopPrice(state, 'dice')}코인`,
+      },
+      {
+        id: 'buy-gain',
+        label: `획득 보너스 +0.5 · ${getShopPrice(state, 'gain')}코인`,
+      },
+    ]
+
+    if (state.blessings.owned.includes('J의 축복')) {
+      choices.push({
+        id: 'buy-lottery',
+        label: `J의 복권 · ${getShopPrice(state, 'lottery')}코인`,
+      })
+    }
+
+    choices.push({
+      id: 'leave',
+      label: '아무것도 사지 않고 나간다',
+    })
+
+    return {
+      ...definition,
+      description:
+        '상점 주인이 여정 지원금으로 코인을 건넸습니다. 상품은 하나만 구매할 수 있습니다.',
+      choices,
+    }
+  }
+
   if (definition.id === 53) {
     if (state.inventory.ownedAccessories.includes('천사의 깃털')) {
       return {

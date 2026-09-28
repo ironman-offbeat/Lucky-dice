@@ -4,7 +4,7 @@ Mobile-first web remake of the original Python console game **Lucky Dice**.
 
 ## Current phase
 
-Phase 7A foundation:
+Phase 7B-1 foundation:
 
 - Vite + TypeScript
 - Mobile portrait-first layout
@@ -22,9 +22,12 @@ Phase 7A foundation:
 - Hell events 20–23 are live; event 24 is implemented but remains absent from the legacy-compatible schedule
 - Special events 50, 51, 53 and 55 are live; hell rest slot 66 is explicit
 - Cathedral and tax choices are derived from current state instead of hardcoded UI branches
+- Item catalog SSOT added for all 14 legacy black-market items, including normalized Piggy Bank price 10
+- Special event 52 shop is live with one-time entry coin grant, dice upgrade, gain-bonus upgrade and J lottery
+- J lottery uses a serializable minigame state and mobile 1–45 number picker
 - Original Python implementation preserved under `legacy/`
 
-All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 7B will complete commerce-heavy special events 52 (shop) and 54 (black market). Hidden, rare and blessing events remain for later phases.
+All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 7B-2 will complete special event 54 (black market), item-effect execution, black-market 777 roulette and repeated purchasing. Hidden, rare and blessing events remain for later phases.
 
 ## Local development
 

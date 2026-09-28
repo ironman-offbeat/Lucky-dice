@@ -2,7 +2,7 @@ import type { EventId, GameState } from '../game/GameState'
 import { resolveHellEvent } from './hell'
 import { resolveInputNormalEvent } from './inputNormal'
 import { resolveNormalEvent } from './normal'
-import { resolveSpecialEvent } from './special'
+import { prepareSpecialEvent, resolveSpecialEvent } from './special'
 import type { EventRandomSource } from './schedule'
 import type { EventAction, EventResolution } from './types'
 
@@ -16,3 +16,11 @@ export const resolveRegisteredEvent = (
   resolveSpecialEvent(state, eventId, action, random) ??
   resolveInputNormalEvent(state, eventId, action, random) ??
   resolveNormalEvent(state, eventId, action, random)
+
+
+export const prepareRegisteredEvent = (
+  state: GameState,
+  eventId: EventId,
+): void => {
+  prepareSpecialEvent(state, eventId)
+}

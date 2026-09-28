@@ -6,14 +6,16 @@ import {
   loseCoin,
   spendCoin,
 } from '../game/EconomyEngine'
+import { prepareShopEvent, resolveShopEvent } from '../game/ShopEngine'
 import type { EventRandomSource } from './schedule'
 import type { EventAction, EventResolution } from './types'
 
-type SimpleSpecialEventId = 50 | 51 | 53 | 55 | 66
+type SimpleSpecialEventId = 50 | 51 | 52 | 53 | 55 | 66
 
 const SIMPLE_SPECIAL_EVENT_IDS = new Set<EventId>([
   50,
   51,
+  52,
   53,
   55,
   66,
@@ -226,6 +228,8 @@ export const resolveSpecialEvent = (
       return resolveDevilDeal(state, action)
     case 51:
       return resolveOutlaw(state, action)
+    case 52:
+      return resolveShopEvent(state, action, random)
     case 53:
       return resolveCathedral(state, action)
     case 55:
@@ -237,5 +241,15 @@ export const resolveSpecialEvent = (
         message:
           '불길 사이로 잠시 고요가 찾아왔습니다. 아무 일도 일어나지 않았습니다.',
       }
+  }
+}
+
+
+export const prepareSpecialEvent = (
+  state: GameState,
+  eventId: EventId,
+): void => {
+  if (eventId === 52) {
+    prepareShopEvent(state)
   }
 }

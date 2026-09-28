@@ -14,7 +14,7 @@ export type DiceType = 'normal' | 'dark' | 'special-50'
 
 export type EventId = number | 'blessing' | 'fame' | 'hidden-zero'
 
-export type MinigameKind = 'number-guess' | 'worship' | 'memory'
+export type MinigameKind = 'number-guess' | 'worship' | 'memory' | 'lottery'
 export type MinigamePhase = 'input' | 'countdown' | 'reveal'
 export type TimedChallengeStatus = 'idle' | 'scheduled' | 'active' | 'resolved'
 
@@ -66,6 +66,9 @@ export interface MinigameState {
   displayText: string | null
   sequence: string[]
   feedback: string | null
+  selectedNumbers?: number[]
+  drawNumbers?: number[]
+  bonusNumber?: number
 }
 
 export interface TimedChallengeState {

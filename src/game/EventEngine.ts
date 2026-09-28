@@ -2,7 +2,7 @@ import type { EventId, GameState } from './GameState'
 import { settleEconomy, type EconomySettlementResult } from './EconomyEngine'
 import { getEventDefinition } from '../events/registry'
 import { presentEventDefinition } from '../events/presentation'
-import { resolveRegisteredEvent } from '../events/resolvers'
+import { prepareRegisteredEvent, resolveRegisteredEvent } from '../events/resolvers'
 import {
   createEventSchedule,
   scheduledEventIdAt,
@@ -80,6 +80,7 @@ export const prepareCurrentEvent = (
   state.event.pendingChoiceId = null
   state.event.resultText = null
   state.event.minigame = null
+  prepareRegisteredEvent(state, eventId)
   state.progress.gameStatus = 'choice'
 
   return presentEventDefinition(

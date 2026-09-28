@@ -100,7 +100,7 @@ const definitions: readonly EventDefinition[] = [
   definition(49, '축복의 별', 'special', '별들의 축복과 연계되는 특별 이벤트입니다.'),
   definition(50, '악마의 거래', 'special', '획득 보너스와 손실 보너스를 함께 +1 하는 거래를 제안받습니다.', { implemented: true, choices: [ { id: 'accept', label: '거래를 받아들인다' }, { id: 'reject', label: '거래를 거절한다' } ] }),
   definition(51, '강도 습격', 'special', '코인을 지불하거나 부상을 감수해야 합니다.', { implemented: true, choices: [ { id: 'pay', label: '코인을 지불한다' }, { id: 'resist', label: '지불하지 않고 맞선다' } ] }),
-  definition(52, '상점', 'special', '일반 상점을 방문하는 특별 이벤트입니다.'),
+  definition(52, '상점', 'special', '여정 지원금을 받고 상품 하나를 구매할 수 있습니다.', { implemented: true, choiceLabel: '상품을 살펴본다' }),
   definition(53, '성당', 'special', '현재 상태에 따라 정화·치료·천사의 깃털 효과를 받을 수 있습니다.', { implemented: true, choiceLabel: '성당을 살펴본다' }),
   definition(54, '암시장', 'special', '악세사리를 구매할 수 있는 특별 이벤트입니다.'),
   definition(55, '세금', 'special', '세금을 납부하거나 도주를 시도할 수 있습니다.', { implemented: true, choiceLabel: '세금징수원을 상대한다' }),

@@ -195,6 +195,44 @@ const renderMemory = (state: Readonly<GameState>): string => {
   `
 }
 
+
+const renderLottery = (state: Readonly<GameState>): string => {
+  const minigame = state.event.minigame
+  if (!minigame || minigame.kind !== 'lottery') return ''
+
+  const selected = minigame.selectedNumbers ?? []
+  const buttons = Array.from({ length: 45 }, (_, index) => {
+    const value = index + 1
+    const isSelected = selected.includes(value)
+
+    return `
+      <button
+        class="lottery-number${isSelected ? ' lottery-number--selected' : ''}"
+        type="button"
+        data-lottery-number="${value}"
+        aria-pressed="${isSelected ? 'true' : 'false'}"
+      >${value}</button>
+    `
+  }).join('')
+
+  return `
+    <p class="minigame-feedback">${escapeHtml(minigame.feedback ?? '')}</p>
+    <div class="lottery-selection">
+      <span>선택</span>
+      <strong>${selected.length} / 6</strong>
+    </div>
+    <div class="lottery-grid" aria-label="복권 번호 선택">
+      ${buttons}
+    </div>
+    <button
+      class="event-choice event-choice--submit lottery-submit"
+      type="button"
+      data-lottery-submit
+      ${selected.length === 6 ? '' : 'disabled'}
+    >선택 완료</button>
+  `
+}
+
 export const renderMinigamePanel = (
   state: Readonly<GameState>,
   currentEvent: Readonly<EventDefinition>,
@@ -208,8 +246,10 @@ export const renderMinigamePanel = (
     body = renderNumberGuess(state)
   } else if (minigame.kind === 'worship') {
     body = renderWorship(state)
-  } else {
+  } else if (minigame.kind === 'memory') {
     body = renderMemory(state)
+  } else {
+    body = renderLottery(state)
   }
 
   return `
@@ -336,6 +376,53 @@ export const bindInteractiveEventUI = (
     resolveCurrentMinigameAction(state, {
       choiceId: 'memory-submit',
       textValue: input.value,
+    })
+    rerender()
+  })
+
+  const lotteryButtons = root.querySelectorAll<HTMLButtonElement>(
+    '[data-lottery-number]',
+  )
+  lotteryButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      if (
+        state.progress.gameStatus !== 'minigame' ||
+        state.event.minigame?.kind !== 'lottery'
+      ) {
+        return
+      }
+
+      const value = Number(button.dataset.lotteryNumber)
+      if (!Number.isInteger(value) || value < 1 || value > 45) return
+
+      const selected = state.event.minigame.selectedNumbers ?? []
+      const existingIndex = selected.indexOf(value)
+
+      if (existingIndex >= 0) {
+        selected.splice(existingIndex, 1)
+      } else if (selected.length < 6) {
+        selected.push(value)
+      }
+
+      state.event.minigame.selectedNumbers = selected
+      rerender()
+    })
+  })
+
+  const lotterySubmit = root.querySelector<HTMLButtonElement>(
+    '[data-lottery-submit]',
+  )
+  lotterySubmit?.addEventListener('click', () => {
+    if (
+      state.progress.gameStatus !== 'minigame' ||
+      state.event.minigame?.kind !== 'lottery' ||
+      state.event.minigame.selectedNumbers?.length !== 6
+    ) {
+      return
+    }
+
+    resolveCurrentMinigameAction(state, {
+      choiceId: 'lottery-submit',
     })
     rerender()
   })
