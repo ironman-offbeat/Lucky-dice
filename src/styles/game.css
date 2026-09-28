@@ -1463,8 +1463,8 @@ button {
   background-image:
     linear-gradient(
       180deg,
-      rgba(5, 6, 8, 0.48),
-      rgba(5, 6, 8, 0.60)
+      rgba(5, 6, 8, 0.58),
+      rgba(5, 6, 8, 0.70)
     ),
     url("/images/focus-pattern-gold.webp");
   background-position: center, center;
