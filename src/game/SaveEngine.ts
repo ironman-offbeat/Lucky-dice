@@ -6,6 +6,7 @@ import {
   type GameStatus,
   type MinigameKind,
   type MinigamePhase,
+  type MinigameState,
   type TimedChallengeStatus,
 } from './GameState'
 
@@ -161,7 +162,9 @@ const isValidRouletteDigits = (value: unknown): boolean =>
     )
   )
 
-const isValidMinigame = (value: unknown): boolean => {
+const isValidMinigame = (
+  value: unknown,
+): value is MinigameState | null => {
   if (value === null) return true
   if (!isRecord(value)) return false
 
@@ -222,33 +225,35 @@ const isValidMinigame = (value: unknown): boolean => {
       )
 
     case 'lottery': {
+      const selectedNumbers = value.selectedNumbers
+      const drawNumbers = value.drawNumbers
+      const bonusNumber = value.bonusNumber
+
       if (
         value.phase !== 'input' ||
         value.targetNumber !== null ||
         value.maxAttempts !== 1 ||
         value.attemptsUsed !== 0 ||
         !hasUniqueNumbersInRange(
-          value.selectedNumbers,
+          selectedNumbers,
           1,
           45,
         ) ||
-        value.selectedNumbers.length > 6 ||
+        selectedNumbers.length > 6 ||
         !hasUniqueNumbersInRange(
-          value.drawNumbers,
+          drawNumbers,
           1,
           45,
           6,
         ) ||
-        !Number.isInteger(value.bonusNumber) ||
-        Number(value.bonusNumber) < 1 ||
-        Number(value.bonusNumber) > 45
+        !Number.isInteger(bonusNumber) ||
+        Number(bonusNumber) < 1 ||
+        Number(bonusNumber) > 45
       ) {
         return false
       }
 
-      return !value.drawNumbers.includes(
-        Number(value.bonusNumber),
-      )
+      return !drawNumbers.includes(Number(bonusNumber))
     }
 
     case 'black-market':
@@ -374,18 +379,24 @@ const isValidGameState = (value: unknown): value is GameState => {
     return false
   }
 
+  if (!isRecord(blessings)) {
+    return false
+  }
+
+  const availableBlessings = blessings.available
+  const ownedBlessings = blessings.owned
+
   if (
-    !isRecord(blessings) ||
-    !isStringArray(blessings.available) ||
-    !blessings.available.every(isBlessingId) ||
-    new Set(blessings.available).size !==
-      blessings.available.length ||
-    !isStringArray(blessings.owned) ||
-    !blessings.owned.every(isBlessingId) ||
-    new Set(blessings.owned).size !==
-      blessings.owned.length ||
-    blessings.available.some((entry) =>
-      blessings.owned.includes(entry)
+    !isStringArray(availableBlessings) ||
+    !availableBlessings.every(isBlessingId) ||
+    new Set(availableBlessings).size !==
+      availableBlessings.length ||
+    !isStringArray(ownedBlessings) ||
+    !ownedBlessings.every(isBlessingId) ||
+    new Set(ownedBlessings).size !==
+      ownedBlessings.length ||
+    availableBlessings.some((entry) =>
+      ownedBlessings.includes(entry)
     ) ||
     !isStringArray(blessings.curses) ||
     typeof blessings.compoundActive !== 'boolean' ||
@@ -405,17 +416,23 @@ const isValidGameState = (value: unknown): value is GameState => {
     return false
   }
 
+  if (!isRecord(event)) {
+    return false
+  }
+
+  const schedule = event.schedule
+  const minigame = event.minigame
+
   if (
-    !isRecord(event) ||
-    !isNumberArray(event.schedule) ||
-    event.schedule.length < 462 ||
-    !event.schedule.every(Number.isInteger) ||
+    !isNumberArray(schedule) ||
+    schedule.length < 462 ||
+    !schedule.every((entry) => Number.isInteger(entry)) ||
     !isValidEventId(event.currentEventId) ||
     (event.pendingChoiceId !== null &&
       typeof event.pendingChoiceId !== 'string') ||
     (event.resultText !== null &&
       typeof event.resultText !== 'string') ||
-    !isValidMinigame(event.minigame) ||
+    !isValidMinigame(minigame) ||
     !isStringArray(event.blessingOffers) ||
     !isValidTimedChallenge(event.timedChallenge)
   ) {
@@ -444,14 +461,14 @@ const isValidGameState = (value: unknown): value is GameState => {
 
   if (
     progress.gameStatus === 'minigame' &&
-    event.minigame === null
+    minigame === null
   ) {
     return false
   }
 
   if (
     progress.gameStatus === 'minigame' &&
-    event.minigame !== null
+    minigame !== null
   ) {
     const expectedEventId = {
       'number-guess': 7,
@@ -460,7 +477,7 @@ const isValidGameState = (value: unknown): value is GameState => {
       lottery: 52,
       'black-market': 54,
       'rare-roulette': 77,
-    }[event.minigame.kind]
+    }[minigame.kind]
 
     if (event.currentEventId !== expectedEventId) {
       return false
