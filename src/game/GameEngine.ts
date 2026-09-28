@@ -27,7 +27,7 @@ export const beginRoll = (
     state.dice.forcedMove = null
   }
 
-  if (state.dice.diceBank) {
+  if (state.dice.diceBank && roll.source !== 'forced') {
     grantCoin(state, 0.5)
   }
 
@@ -62,4 +62,31 @@ export const completeMove = (state: GameState, move: Readonly<StageMoveResult>):
   }
 
   state.progress.gameStatus = 'event'
+}
+
+
+export interface EventStageMoveResult {
+  stageBefore: number
+  stageAfter: number
+  distance: number
+}
+
+export const applyEventStageDelta = (
+  state: GameState,
+  distance: number,
+): EventStageMoveResult => {
+  if (!Number.isFinite(distance)) {
+    throw new Error('Event stage distance must be finite.')
+  }
+
+  const stageBefore = state.progress.stage
+  state.progress.stage += distance
+  state.progress.isHell =
+    state.progress.stage > 300 && state.progress.stage < 400
+
+  return {
+    stageBefore,
+    stageAfter: state.progress.stage,
+    distance,
+  }
 }

@@ -11,7 +11,7 @@ import {
   getCurrentEventDefinition,
   initializeEventSchedule,
   prepareCurrentEvent,
-  resolveCurrentEventChoice,
+  resolveCurrentEventAction,
 } from './game/EventEngine'
 import { INITIAL_GAME_STATE, type GameStatus } from './game/GameState'
 
@@ -140,7 +140,7 @@ const renderRollReadout = (): string => {
   return `
     <div class="roll-readout" aria-live="polite">
       <div><span>주사위 결과</span><strong>${currentMove.rawRoll}</strong></div>
-      <div><span>보정</span><strong>${signed(currentMove.modifierApplied)}</strong></div>
+      <div><span>보정</span><strong>${signed(currentMove.modifierApplied + currentMove.accessoryBonus)}</strong></div>
       <div class="roll-readout__move${moveClass}"><span>MOVE</span><strong>${signed(currentMove.finalMove)}</strong></div>
     </div>
   `
@@ -188,6 +188,50 @@ const renderEventPanel = (): string => {
       )
       .join('')
 
+    const numericInput = currentEvent.numericInput
+    let numericControl = ''
+
+    if (numericInput) {
+      const max =
+        numericInput.maxSource === 'coin-floor'
+          ? Math.floor(state.economy.coin)
+          : numericInput.max ?? Number.POSITIVE_INFINITY
+
+      if (max >= numericInput.min) {
+        numericControl = `
+          <div class="event-number-control">
+            <label for="event-number-input">${numericInput.label}</label>
+            <div class="event-number-control__row">
+              <input
+                id="event-number-input"
+                type="number"
+                inputmode="numeric"
+                min="${numericInput.min}"
+                ${Number.isFinite(max) ? `max="${max}"` : ''}
+                step="${numericInput.step ?? 1}"
+                value="${numericInput.min}"
+                data-event-number
+              />
+              <button
+                class="event-choice event-choice--submit"
+                type="button"
+                data-event-number-submit="${numericInput.id}"
+              >${numericInput.submitLabel}</button>
+            </div>
+            ${Number.isFinite(max) ? `<span class="event-number-control__hint">선택 가능: ${numericInput.min}~${max}</span>` : ''}
+          </div>
+        `
+      } else if (numericInput.fallbackChoice) {
+        numericControl = `
+          <button
+            class="event-choice"
+            type="button"
+            data-event-choice="${numericInput.fallbackChoice.id}"
+          >${numericInput.fallbackChoice.label}</button>
+        `
+      }
+    }
+
     return `
       <section class="event-panel event-panel--active" aria-label="Current event">
         <div class="event-panel__heading">
@@ -199,6 +243,7 @@ const renderEventPanel = (): string => {
         <p>${currentEvent.description}</p>
         <div class="event-choice-list">
           ${choices}
+          ${numericControl}
         </div>
         <p class="event-meta">EVENT ${String(currentEvent.id)} · ${currentEvent.implemented ? 'IMPLEMENTED' : 'FRAMEWORK READY'}</p>
       </section>
@@ -292,7 +337,7 @@ const render = (): void => {
         <p class="focus-panel__eyebrow">${focus.eyebrow}</p>
         ${renderRollReadout()}
         <button class="primary-action" type="button" data-action="roll" ${focus.disabled ? 'disabled' : ''}>${focus.button}</button>
-        <p class="phase-note">Phase 6 · Normal Event Effects</p>
+        <p class="phase-note">Phase 6 · Choice Events + Numeric Input</p>
       </section>
 
       ${renderEventPanel()}
@@ -365,9 +410,25 @@ const bindActions = (): void => {
     button.addEventListener('click', () => {
       const choiceId = button.dataset.eventChoice
       if (!choiceId || state.progress.gameStatus !== 'choice') return
-      resolveCurrentEventChoice(state, choiceId)
+      resolveCurrentEventAction(state, { choiceId })
       render()
     })
+  })
+
+  const numericSubmitButton = app.querySelector<HTMLButtonElement>('[data-event-number-submit]')
+  numericSubmitButton?.addEventListener('click', () => {
+    if (state.progress.gameStatus !== 'choice') return
+
+    const input = app.querySelector<HTMLInputElement>('[data-event-number]')
+    const choiceId = numericSubmitButton.dataset.eventNumberSubmit
+
+    if (!input || !choiceId || !input.reportValidity()) return
+
+    resolveCurrentEventAction(state, {
+      choiceId,
+      numericValue: Number(input.value),
+    })
+    render()
   })
 
   const nextTurnButton = app.querySelector<HTMLButtonElement>('[data-action="complete-event"]')

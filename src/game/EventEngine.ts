@@ -8,7 +8,9 @@ import {
   type EventRandomSource,
 } from '../events/schedule'
 import type {
+  EventAction,
   EventDefinition,
+  EventNumericInputDefinition,
   EventResolution,
 } from '../events/types'
 
@@ -89,9 +91,17 @@ export const getCurrentEventDefinition = (
   return getEventDefinition(state.event.currentEventId)
 }
 
-export const resolveCurrentEventChoice = (
+const resolveNumericInputMax = (
+  state: Readonly<GameState>,
+  input: Readonly<EventNumericInputDefinition>,
+): number =>
+  input.maxSource === 'coin-floor'
+    ? Math.floor(state.economy.coin)
+    : input.max ?? Number.POSITIVE_INFINITY
+
+export const resolveCurrentEventAction = (
   state: GameState,
-  choiceId: string,
+  action: EventAction,
   random: EventRandomSource = Math.random,
 ): EventResolution => {
   assertStatus(state, 'choice')
@@ -101,19 +111,52 @@ export const resolveCurrentEventChoice = (
   }
 
   const currentEvent = getEventDefinition(state.event.currentEventId)
-  const choice = currentEvent.choices.find((entry) => entry.id === choiceId)
+  const numericInput = currentEvent.numericInput
+  const numericInputMax = numericInput
+    ? resolveNumericInputMax(state, numericInput)
+    : null
+  const isNumericAction =
+    numericInput !== undefined &&
+    action.choiceId === numericInput.id
+  const isFallbackAction =
+    numericInput?.fallbackChoice?.id === action.choiceId &&
+    numericInputMax !== null &&
+    numericInputMax < numericInput.min
+  const isListedChoice = currentEvent.choices.some(
+    (entry) => entry.id === action.choiceId,
+  )
 
-  if (!choice) {
+  if (isNumericAction) {
+    const value = action.numericValue
+    const step = numericInput.step ?? 1
+    const stepOffset =
+      value === undefined
+        ? Number.POSITIVE_INFINITY
+        : (value - numericInput.min) / step
+
+    if (
+      value === undefined ||
+      !Number.isFinite(value) ||
+      value < numericInput.min ||
+      value > (numericInputMax ?? Number.POSITIVE_INFINITY) ||
+      Math.abs(stepOffset - Math.round(stepOffset)) > 1e-9
+    ) {
+      throw new Error(
+        `Numeric value is not valid for event ${String(currentEvent.id)}.`,
+      )
+    }
+  } else if (!isListedChoice && !isFallbackAction) {
     throw new Error(
-      `Choice ${choiceId} is not valid for event ${String(currentEvent.id)}.`,
+      `Choice ${action.choiceId} is not valid for event ${String(currentEvent.id)}.`,
     )
   }
 
-  state.event.pendingChoiceId = choice.id
+  state.event.pendingChoiceId = action.choiceId
 
   const implementedResolution = resolveRegisteredEvent(
     state,
     currentEvent.id,
+    action,
     random,
   )
 
