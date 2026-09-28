@@ -4,7 +4,7 @@ Mobile-first web remake of the original Python console game **Lucky Dice**.
 
 ## Current phase
 
-Phase 9B persistence hardening:
+Phase 10A production polish:
 
 - Vite + TypeScript
 - Mobile portrait-first layout
@@ -49,10 +49,15 @@ Phase 9B persistence hardening:
 - Corrupt saves with mismatched minigame/event IDs, malformed roulette/lottery payloads, invalid blessing pools, transient statuses, or incomplete schedules are rejected
 - Saved Victory states render a complete victory panel even though transient movement animation data is intentionally not persisted
 - LOAD is disabled during active minigames and transient roll/move flows to prevent stale asynchronous UI work from mutating restored state
+- Development phase labels are removed from the production game surface
+- HUD now includes a 0–400 journey progress track
+- Blessing and accessory counts open readable bottom-sheet inventories with current effect descriptions
+- Victory and Game Over panels provide an immediate New Game action
+- Optional artwork slots are formalized in src/ui/Artwork.ts and public/images/README.md; gameplay remains image-independent until assets are supplied
 - Memory Saver now records a save request flag for the later LocalStorage save phase
 - Original Python implementation preserved under `legacy/`
 
-All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 9B persistence hardening is live. Save data is browser-local JSON under a versioned LocalStorage key, replacing the unsafe legacy save.txt + exec() model. Static regression review covers ready/choice/minigame/event-result/game-over/victory saves, shop and black-market sessions, lottery and roulette state, blessing offers, memory replay, and scheduled/active/resolved timed challenges. Automated browser interaction was not available in the execution environment, so Vercel Preview/Production builds and state-contract validation are used as the deployment gate. Saves stay on the current browser/device and do not sync across devices.
+All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 10A production polish is in progress. The game now has production-facing HUD/inventory/end-state UX and a formal optional artwork contract. No raster artwork is committed yet; the six planned WebP slots are documented under public/images/README.md and the game intentionally falls back to the CSS-only presentation until those files exist.
 
 ## Local development
 

@@ -1236,3 +1236,160 @@ button {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+
+/* Phase 10A: production UI polish */
+.stage-progress {
+  height: 4px;
+  margin-top: 11px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.stage-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #80672d, #d8b86a);
+  box-shadow: 0 0 12px rgba(216, 184, 106, 0.22);
+  transition: width 420ms ease;
+}
+
+.inventory-bar button:not(:disabled) {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.inventory-bar button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.end-action {
+  width: 100%;
+  margin-top: 17px;
+}
+
+.collection-overlay {
+  position: fixed;
+  z-index: 900;
+  inset: 0;
+  padding:
+    max(18px, env(safe-area-inset-top))
+    14px
+    max(14px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(2, 3, 5, 0.76);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.collection-sheet {
+  width: min(100%, 460px);
+  max-height: min(74dvh, 640px);
+  padding: 18px;
+  overflow: auto;
+  border: 1px solid rgba(216, 184, 106, 0.22);
+  border-radius: 22px 22px 16px 16px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(216, 184, 106, 0.08), transparent 42%),
+    #111318;
+  box-shadow: 0 -24px 70px rgba(0, 0, 0, 0.52);
+  overscroll-behavior: contain;
+}
+
+.collection-sheet__heading {
+  position: sticky;
+  top: -18px;
+  z-index: 1;
+  margin: -18px -18px 12px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(17, 19, 24, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.collection-sheet__heading span {
+  color: #a98b49;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+}
+
+.collection-sheet__heading h2 {
+  margin: 4px 0 0;
+  color: #f1e6c9;
+  font-size: 19px;
+}
+
+.collection-sheet__heading button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: #b8b4aa;
+  background: rgba(255, 255, 255, 0.035);
+  font: inherit;
+  font-size: 22px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.collection-list {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  list-style: none;
+}
+
+.collection-item,
+.collection-empty {
+  padding: 13px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.collection-item strong {
+  color: #e8ddbf;
+  font-size: 12px;
+}
+
+.collection-item p {
+  margin: 5px 0 0;
+  color: #878990;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.collection-empty {
+  color: #777980;
+  font-size: 11px;
+  text-align: center;
+}
+
+@media (hover: hover) {
+  .inventory-bar button:not(:disabled):hover,
+  .collection-sheet__heading button:hover {
+    background: rgba(216, 184, 106, 0.07);
+    color: #e8ddbf;
+  }
+}
+
+@media (min-width: 700px) {
+  .collection-overlay {
+    align-items: center;
+  }
+
+  .collection-sheet {
+    border-radius: 22px;
+  }
+}

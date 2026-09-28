@@ -29,6 +29,10 @@ import {
   renderTimedChallengeOverlay,
   syncInteractiveEventUI,
 } from './ui/MinigameUI'
+import {
+  renderCollectionPanel,
+  type CollectionPanel,
+} from './ui/InventoryUI'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -55,6 +59,7 @@ let persistenceNotice =
     : ''
 
 let currentMove: StageMoveResult | null = null
+let collectionPanel: CollectionPanel | null = null
 let runeTimer: number | null = null
 let visibleRunes = ['⌁', 'ᚱ', '⌬']
 
@@ -183,6 +188,7 @@ const restoreState = (result: SaveLoadResult): boolean => {
   state = structuredClone(result.state)
   initializeEventSchedule(state)
   currentMove = null
+  collectionPanel = null
   visibleRunes = nextRuneSet()
   lastSavedAt = result.savedAt
   lastPersistedFingerprint = JSON.stringify(state)
@@ -197,6 +203,7 @@ const startNewGame = (): void => {
   state = createNewGameState()
   initializeEventSchedule(state)
   currentMove = null
+  collectionPanel = null
   visibleRunes = nextRuneSet()
   lastSavedAt = null
   lastPersistedFingerprint = null
@@ -343,6 +350,7 @@ const renderEventPanel = (): string => {
         </div>
         <h1>여정의 끝</h1>
         <p>${victoryCopy}</p>
+        <button class="secondary-action end-action" type="button" data-action="restart-game">새 게임</button>
       </section>
     `
   }
@@ -356,6 +364,7 @@ const renderEventPanel = (): string => {
         </div>
         <h1>여정 종료</h1>
         <p>모든 코인을 잃었습니다. 최종 도달 Stage는 <strong>${state.progress.stage}</strong>입니다.</p>
+        <button class="secondary-action end-action" type="button" data-action="restart-game">새 게임</button>
       </section>
     `
   }
@@ -481,6 +490,7 @@ const render = (): void => {
 
   const gaugeMax = gaugeMaxFor(state.economy.coin)
   const gaugePercent = Math.min(100, Math.max(0, (state.economy.coin / gaugeMax) * 100))
+  const stagePercent = Math.min(100, Math.max(0, (state.progress.stage / 400) * 100))
   const focus = focusCopy()
   const coinDangerClass = state.economy.coin <= 3 ? ' coin-panel--danger' : ''
   const rollingClass = state.progress.gameStatus === 'rolling' ? ' dummy-die--rolling' : ''
@@ -497,6 +507,16 @@ const render = (): void => {
             <span>LUCKY DICE</span>
           </div>
           <div class="stage-label">STAGE <strong>${state.progress.stage}</strong> / 400</div>
+        </div>
+        <div
+          class="stage-progress"
+          role="progressbar"
+          aria-label="Journey progress"
+          aria-valuemin="0"
+          aria-valuemax="400"
+          aria-valuenow="${state.progress.stage}"
+        >
+          <span style="width: ${stagePercent}%"></span>
         </div>
 
         <section class="coin-panel${coinDangerClass}" aria-label="Coin status">
@@ -536,7 +556,6 @@ const render = (): void => {
         ${renderRollReadout()}
         ${renderSpecialDiceControl()}
         <button class="primary-action" type="button" data-action="roll" ${focus.disabled ? 'disabled' : ''}>${focus.button}</button>
-        <p class="phase-note">Phase 9B · Save Regression</p>
       </section>
 
       ${renderEventPanel()}
@@ -550,11 +569,12 @@ const render = (): void => {
       </section>
 
       <footer class="inventory-bar">
-        <button type="button" disabled><span>✦</span> 축복 <strong>${state.blessings.owned.length}</strong></button>
-        <button type="button" disabled><span>▣</span> 악세사리 <strong>${state.inventory.ownedAccessories.length}</strong></button>
+        <button type="button" data-collection-open="blessings"><span>✦</span> 축복 <strong>${state.blessings.owned.length}</strong></button>
+        <button type="button" data-collection-open="accessories"><span>▣</span> 악세사리 <strong>${state.inventory.ownedAccessories.length}</strong></button>
       </footer>
     </main>
     ${renderTimedChallengeOverlay(state)}
+    ${renderCollectionPanel(state, collectionPanel)}
   `
 
   bindActions()
@@ -640,6 +660,33 @@ const bindActions = (): void => {
     if (!canLoadCurrentState()) return
     restoreState(loadGame())
     render()
+  })
+  const restartButton = app.querySelector<HTMLButtonElement>('[data-action="restart-game"]')
+  restartButton?.addEventListener('click', () => {
+    startNewGame()
+    render()
+  })
+
+  const collectionButtons = app.querySelectorAll<HTMLButtonElement>('[data-collection-open]')
+  collectionButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const panel = button.dataset.collectionOpen
+      if (panel !== 'blessings' && panel !== 'accessories') return
+      collectionPanel = panel
+      render()
+    })
+  })
+
+  const collectionCloseButtons = app.querySelectorAll<HTMLElement>('[data-collection-close]')
+  collectionCloseButtons.forEach((element) => {
+    element.addEventListener('click', (event) => {
+      const target = event.target
+      if (!(target instanceof Element)) return
+      const sheet = target.closest('[data-collection-sheet]')
+      if (sheet && !target.closest('button[data-collection-close]')) return
+      collectionPanel = null
+      render()
+    })
   })
   const choiceButtons = app.querySelectorAll<HTMLButtonElement>('[data-event-choice]')
   choiceButtons.forEach((button) => {
