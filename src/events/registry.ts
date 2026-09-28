@@ -45,9 +45,9 @@ const definition = (
 const definitions: readonly EventDefinition[] = [
   definition('fame', '유명한 자의 길', 'system', '명성의 축복으로 우선 발생하는 이벤트입니다.', { implemented: true, choiceLabel: '후원을 선택한다' }),
   definition('blessing', '축복 이벤트', 'system', '100 Stage 단위로 우선 발생하는 축복 이벤트입니다.', { implemented: true, choiceLabel: '축복을 선택한다' }),
-  definition('hidden-zero', '되돌아온 길', 'hidden', 'Stage 0 이하에서 발생하는 히든 이벤트입니다.'),
-  definition(-1, '첫 번째 히든 이벤트', 'hidden', 'Stage 1에 배치된 원본 히든 이벤트입니다.'),
-  definition(0, '쉬어가기', 'system', '별도의 사건 없이 다음 여정을 준비합니다.'),
+  definition('hidden-zero', '세상의 밖', 'hidden', 'Stage 0 이하에서 시간의 흐름이 뒤틀리며 출발점으로 돌아오는 히든 이벤트입니다.', { implemented: true, choiceLabel: '여정을 다시 시작한다' }),
+  definition(-1, '여정에 대한 생각', 'hidden', 'Stage 1에서 앞으로의 여정과 과거를 돌아보는 히든 이벤트입니다.', { implemented: true, choices: [ { id: 'look-forward', label: '앞으로의 여정을 기대한다 · 코인 +3' }, { id: 'worry', label: '앞으로의 여정을 걱정한다 · 획득 보너스 +1' }, { id: 'remember', label: '과거의 일을 추억한다' } ] }),
+  definition(0, '쉬어가기', 'system', '별도의 사건 없이 다음 여정을 준비합니다.', { implemented: true, choiceLabel: '계속' }),
   definition(1, '맞장뜨기', 'normal', '50% 확률로 코인을 얻거나 잃습니다.', { implemented: true, choiceLabel: '싸운다' }),
   definition(2, '삥 뜯기기', 'normal', '길에서 코인을 빼앗깁니다.', { implemented: true, choiceLabel: '결과 확인' }),
   definition(3, '코인 줍기', 'normal', '길에서 코인을 발견합니다.', { implemented: true, choiceLabel: '결과 확인' }),

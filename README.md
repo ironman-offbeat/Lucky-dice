@@ -4,7 +4,7 @@ Mobile-first web remake of the original Python console game **Lucky Dice**.
 
 ## Current phase
 
-Phase 8A foundation:
+Phase 8B complete:
 
 - Vite + TypeScript
 - Mobile portrait-first layout
@@ -35,10 +35,14 @@ Phase 8A foundation:
 - Fame blessing routes the next three events through Famous Path choices
 - Stars blessing injects Stage-49 star events into the existing schedule, with source-compatible single-offer behavior
 - Dice blessing exposes a one-use 1–50 movement control that bypasses normal modifier and Piggy Bank effects
+- Hidden Stage <= 0 event is live: returns to Stage 0 and grants dice modifier +2
+- Stage 1 hidden event (-1) is live with expectation, worry and memory choices
+- Stage 1 memory preserves the legacy 25% star-memory branch and can grant Stars Blessing only while it remains available
+- System event 0 is an explicit no-effect rest event instead of a framework placeholder
 - Memory Saver now records a save request flag for the later LocalStorage save phase
 - Original Python implementation preserved under `legacy/`
 
-All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 8A blessing port is complete: threshold blessings, blessing-derived star/fame events, and the one-use 1–50 blessing die are live. The regular threshold event preserves the legacy candidate-pool asymmetry that excludes the final available blessing; the star event preserves its complementary source behavior. Hidden events at Stage 0/1 and remaining system placeholders are reserved for Phase 8B.
+All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 8 event-layer port is complete: blessings, blessing-derived star/fame paths, hidden Stage <= 0 and Stage 1 events, and system rest slot 0 are live. Legacy making/thend/hgate hidden-ending remnants are intentionally not activated because the source main loop never reaches them as a completed gameplay path. The next major phase is save/load and persistence.
 
 ## Local development
 

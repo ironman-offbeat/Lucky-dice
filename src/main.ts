@@ -386,7 +386,7 @@ const render = (): void => {
         ${renderRollReadout()}
         ${renderSpecialDiceControl()}
         <button class="primary-action" type="button" data-action="roll" ${focus.disabled ? 'disabled' : ''}>${focus.button}</button>
-        <p class="phase-note">Phase 8A · Blessing System</p>
+        <p class="phase-note">Phase 8B · Hidden + System Events</p>
       </section>
 
       ${renderEventPanel()}
