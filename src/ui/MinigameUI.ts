@@ -1,4 +1,5 @@
 import type { GameState } from '../game/GameState'
+import { getItemDefinition, ITEM_IDS, type ItemId } from '../data/items'
 import { resolveCurrentMinigameAction } from '../game/EventEngine'
 import {
   activateTimedChallenge,
@@ -233,6 +234,57 @@ const renderLottery = (state: Readonly<GameState>): string => {
   `
 }
 
+
+const renderBlackMarket = (state: Readonly<GameState>): string => {
+  const minigame = state.event.minigame
+  if (!minigame || minigame.kind !== 'black-market') return ''
+
+  const offers = (minigame.marketOffers ?? []).filter(
+    (value): value is ItemId => ITEM_IDS.includes(value as ItemId),
+  )
+
+  const itemCards = offers.length > 0
+    ? offers.map((itemId) => {
+        const item = getItemDefinition(itemId)
+        const affordable = state.economy.coin >= item.price
+
+        return `
+          <button
+            class="market-item${affordable ? '' : ' market-item--disabled'}"
+            type="button"
+            data-market-action="buy-item:${itemId}"
+          >
+            <span class="market-item__name">${escapeHtml(itemId)}</span>
+            <span class="market-item__desc">${escapeHtml(item.description)}</span>
+            <strong>${item.price} COIN</strong>
+          </button>
+        `
+      }).join('')
+    : '<p class="market-empty">더 이상 진열된 상품이 없습니다.</p>'
+
+  const roulette = minigame.rouletteDigits
+    ? `<div class="roulette-result">[${minigame.rouletteDigits.join('][')}]</div>`
+    : ''
+
+  return `
+    <p class="minigame-feedback">${escapeHtml(minigame.feedback ?? '')}</p>
+    ${roulette}
+    <div class="market-list">
+      ${itemCards}
+    </div>
+    <button
+      class="event-choice market-roulette"
+      type="button"
+      data-market-action="roulette"
+    >777 룰렛 · 2 COIN</button>
+    <button
+      class="event-choice"
+      type="button"
+      data-market-action="leave-market"
+    >암시장을 떠난다</button>
+  `
+}
+
 export const renderMinigamePanel = (
   state: Readonly<GameState>,
   currentEvent: Readonly<EventDefinition>,
@@ -248,8 +300,10 @@ export const renderMinigamePanel = (
     body = renderWorship(state)
   } else if (minigame.kind === 'memory') {
     body = renderMemory(state)
-  } else {
+  } else if (minigame.kind === 'lottery') {
     body = renderLottery(state)
+  } else {
+    body = renderBlackMarket(state)
   }
 
   return `
@@ -425,6 +479,26 @@ export const bindInteractiveEventUI = (
       choiceId: 'lottery-submit',
     })
     rerender()
+  })
+
+  const marketButtons = root.querySelectorAll<HTMLButtonElement>(
+    '[data-market-action]',
+  )
+  marketButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      if (
+        state.progress.gameStatus !== 'minigame' ||
+        state.event.minigame?.kind !== 'black-market'
+      ) {
+        return
+      }
+
+      const choiceId = button.dataset.marketAction
+      if (!choiceId) return
+
+      resolveCurrentMinigameAction(state, { choiceId })
+      rerender()
+    })
   })
 
   const timedForm = root.querySelector<HTMLFormElement>(

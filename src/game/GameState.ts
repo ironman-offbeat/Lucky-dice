@@ -14,7 +14,7 @@ export type DiceType = 'normal' | 'dark' | 'special-50'
 
 export type EventId = number | 'blessing' | 'fame' | 'hidden-zero'
 
-export type MinigameKind = 'number-guess' | 'worship' | 'memory' | 'lottery'
+export type MinigameKind = 'number-guess' | 'worship' | 'memory' | 'lottery' | 'black-market'
 export type MinigamePhase = 'input' | 'countdown' | 'reveal'
 export type TimedChallengeStatus = 'idle' | 'scheduled' | 'active' | 'resolved'
 
@@ -54,6 +54,7 @@ export interface BlessingState {
 export interface InventoryState {
   availableItems: string[]
   ownedAccessories: string[]
+  memorySaveRequested: boolean
 }
 
 export interface MinigameState {
@@ -69,6 +70,8 @@ export interface MinigameState {
   selectedNumbers?: number[]
   drawNumbers?: number[]
   bonusNumber?: number
+  marketOffers?: string[]
+  rouletteDigits?: [number, number, number] | null
 }
 
 export interface TimedChallengeState {
@@ -135,6 +138,7 @@ export const INITIAL_GAME_STATE: GameState = {
   inventory: {
     availableItems: [],
     ownedAccessories: [],
+    memorySaveRequested: false,
   },
   event: {
     schedule: [],

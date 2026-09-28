@@ -6,17 +6,19 @@ import {
   loseCoin,
   spendCoin,
 } from '../game/EconomyEngine'
+import { resolveBlackMarketEvent } from '../game/BlackMarketEngine'
 import { prepareShopEvent, resolveShopEvent } from '../game/ShopEngine'
 import type { EventRandomSource } from './schedule'
 import type { EventAction, EventResolution } from './types'
 
-type SimpleSpecialEventId = 50 | 51 | 52 | 53 | 55 | 66
+type SimpleSpecialEventId = 50 | 51 | 52 | 53 | 54 | 55 | 66
 
 const SIMPLE_SPECIAL_EVENT_IDS = new Set<EventId>([
   50,
   51,
   52,
   53,
+  54,
   55,
   66,
 ])
@@ -232,6 +234,8 @@ export const resolveSpecialEvent = (
       return resolveShopEvent(state, action, random)
     case 53:
       return resolveCathedral(state, action)
+    case 54:
+      return resolveBlackMarketEvent(state, action, random)
     case 55:
       return resolveTax(state, action, random)
     case 66:

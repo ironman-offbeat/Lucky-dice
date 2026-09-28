@@ -102,7 +102,7 @@ const definitions: readonly EventDefinition[] = [
   definition(51, '강도 습격', 'special', '코인을 지불하거나 부상을 감수해야 합니다.', { implemented: true, choices: [ { id: 'pay', label: '코인을 지불한다' }, { id: 'resist', label: '지불하지 않고 맞선다' } ] }),
   definition(52, '상점', 'special', '여정 지원금을 받고 상품 하나를 구매할 수 있습니다.', { implemented: true, choiceLabel: '상품을 살펴본다' }),
   definition(53, '성당', 'special', '현재 상태에 따라 정화·치료·천사의 깃털 효과를 받을 수 있습니다.', { implemented: true, choiceLabel: '성당을 살펴본다' }),
-  definition(54, '암시장', 'special', '악세사리를 구매할 수 있는 특별 이벤트입니다.'),
+  definition(54, '암시장', 'special', '무작위 상품과 777 룰렛을 이용할 수 있는 특별 이벤트입니다.', { implemented: true, choices: [ { id: 'enter-market', label: '암시장에 들어간다' }, { id: 'leave-market', label: '지나친다' } ] }),
   definition(55, '세금', 'special', '세금을 납부하거나 도주를 시도할 수 있습니다.', { implemented: true, choiceLabel: '세금징수원을 상대한다' }),
   definition(66, '지옥 · 고요', 'hell', '원본의 빈 sung() 슬롯을 명시적인 휴식 이벤트로 처리합니다.', { implemented: true, choiceLabel: '계속' }),
   definition(77, '777 룰렛', 'rare', '한 판에 한 번만 배치되는 희귀 룰렛 이벤트입니다.'),

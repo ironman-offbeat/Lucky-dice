@@ -956,3 +956,77 @@ button {
     grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 }
+
+
+/* Phase 7B-2: black market */
+.market-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.market-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+  width: 100%;
+  padding: 12px 13px;
+  border: 1px solid rgba(176, 112, 214, 0.18);
+  border-radius: 13px;
+  color: #d8d0df;
+  background: linear-gradient(180deg, rgba(73, 42, 85, 0.18), rgba(13, 15, 19, 0.96));
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.market-item__name {
+  color: #eadcf1;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.market-item__desc {
+  grid-column: 1 / -1;
+  color: #85808a;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.market-item strong {
+  color: #d8b86a;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.market-item--disabled {
+  opacity: 0.48;
+}
+
+.market-empty {
+  margin: 0 !important;
+  padding: 14px;
+  border: 1px dashed rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: #777980 !important;
+  text-align: center;
+}
+
+.market-roulette {
+  margin-top: 12px;
+}
+
+.roulette-result {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid rgba(216, 184, 106, 0.25);
+  border-radius: 14px;
+  color: #f4d985;
+  background: #0a0b0e;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
