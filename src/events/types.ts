@@ -37,10 +37,12 @@ export interface EventDefinition {
 export interface EventAction {
   choiceId: string
   numericValue?: number
+  textValue?: string
 }
 
 export interface EventResolution {
   eventId: EventId
   title: string
   message: string
+  complete?: boolean
 }

@@ -74,7 +74,7 @@ const definitions: readonly EventDefinition[] = [
     implemented: true,
     choices: numberedChoices(3, (value) => `다음 이동거리 ${value}`),
   }),
-  definition(7, '숫자 맞추기', 'normal', '1~99 숫자를 제한 횟수 안에 맞추는 이벤트입니다.'),
+  definition(7, '숫자 맞추기', 'normal', '1~99 숫자를 6번 안에 맞추는 이벤트입니다.', { implemented: true, choiceLabel: '숫자 맞추기 시작' }),
   definition(8, '무언가 낙하', 'normal', '거대한 존재가 다가옵니다. 기다리거나 억지로 주사위를 굴려 도망칠 수 있습니다.', {
     implemented: true,
     choices: [
@@ -82,8 +82,8 @@ const definitions: readonly EventDefinition[] = [
       { id: 'run', label: '주사위를 굴려 도망친다' },
     ],
   }),
-  definition(9, '찬양', 'normal', '입력형 찬양 이벤트입니다.'),
-  definition(10, '기억', 'normal', '기억력을 사용하는 입력 이벤트입니다.'),
+  definition(9, '찬양', 'normal', '25글자의 예배문을 정확히 입력하는 이벤트입니다.', { implemented: true, choiceLabel: '예배문 받기' }),
+  definition(10, '기억', 'normal', '12개의 숫자 순서를 기억하는 이벤트입니다.', { implemented: true, choiceLabel: '기억 도전 시작' }),
   definition(11, '코인뭉치', 'normal', '코인 2 + 획득 보너스를 얻습니다.', { implemented: true, choiceLabel: '결과 확인' }),
   definition(12, '코인주머니', 'normal', '코인 3 + 획득 보너스를 얻습니다.', { implemented: true, choiceLabel: '결과 확인' }),
   definition(13, '코인 털리기', 'normal', '코인 2 + 손실 보너스를 잃습니다.', { implemented: true, choiceLabel: '결과 확인' }),
@@ -91,7 +91,7 @@ const definitions: readonly EventDefinition[] = [
     implemented: true,
     choices: numberedChoices(6, (value) => `다음 이동거리 ${value}`),
   }),
-  definition(15, '1분 후 숫자 입력', 'normal', '예약된 시간 뒤 짧은 입력을 요구하는 이벤트입니다.'),
+  definition(15, '1분 후 숫자 입력', 'normal', '60초 후 1.5초 안에 지정 숫자를 입력하는 도전을 예약합니다.', { implemented: true, choiceLabel: '시간제한 도전 예약' }),
   definition(20, '지옥 · 악마의 추격', 'hell', '악마에게서 도망치며 코인을 잃는 지옥 이벤트입니다.'),
   definition(21, '지옥 · 용암', 'hell', '주사위 보정이 감소하는 지옥 이벤트입니다.'),
   definition(22, '지옥 · 이름 모를 악마', 'hell', '잃는 코인 보정이 증가하는 지옥 이벤트입니다.'),

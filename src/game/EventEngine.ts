@@ -50,9 +50,10 @@ export const resolveEventIdForCurrentStage = (
 ): EventId => {
   initializeEventSchedule(state, random)
 
-  // Preserve the original dispatcher priority.
   if (state.blessings.fameEventsRemaining > 0) return 'fame'
-  if (state.progress.stage >= state.blessings.nextBlessingThreshold) return 'blessing'
+  if (state.progress.stage >= state.blessings.nextBlessingThreshold) {
+    return 'blessing'
+  }
   if (state.progress.stage <= 0) return 'hidden-zero'
 
   const scheduledId = scheduledEventIdAt(
@@ -60,8 +61,6 @@ export const resolveEventIdForCurrentStage = (
     state.progress.stage,
   )
 
-  // Original behavior: a star event without the star blessing becomes
-  // one random special event among 50~53.
   if (scheduledId === 49 && !state.blessings.starBlessingActive) {
     return randomChoice([50, 51, 52, 53], random)
   }
@@ -79,6 +78,7 @@ export const prepareCurrentEvent = (
   state.event.currentEventId = eventId
   state.event.pendingChoiceId = null
   state.event.resultText = null
+  state.event.minigame = null
   state.progress.gameStatus = 'choice'
 
   return getEventDefinition(eventId)
@@ -98,6 +98,22 @@ const resolveNumericInputMax = (
   input.maxSource === 'coin-floor'
     ? Math.floor(state.economy.coin)
     : input.max ?? Number.POSITIVE_INFINITY
+
+const applyResolutionState = (
+  state: GameState,
+  resolution: EventResolution,
+): EventResolution => {
+  state.event.resultText = resolution.message
+
+  if (resolution.complete === false) {
+    state.progress.gameStatus = 'minigame'
+  } else {
+    state.event.minigame = null
+    state.progress.gameStatus = 'event-result'
+  }
+
+  return resolution
+}
 
 export const resolveCurrentEventAction = (
   state: GameState,
@@ -166,19 +182,47 @@ export const resolveCurrentEventAction = (
     )
   }
 
-  const resolution: EventResolution =
+  return applyResolutionState(
+    state,
     implementedResolution ?? {
       eventId: currentEvent.id,
       title: currentEvent.name,
       message:
         `${currentEvent.name}의 실행 경로가 정상적으로 연결되었습니다. ` +
         '실제 효과는 이후 이벤트 이식 단계에서 적용됩니다.',
-    }
+    },
+  )
+}
 
-  state.event.resultText = resolution.message
-  state.progress.gameStatus = 'event-result'
+export const resolveCurrentMinigameAction = (
+  state: GameState,
+  action: EventAction,
+  random: EventRandomSource = Math.random,
+): EventResolution => {
+  assertStatus(state, 'minigame')
 
-  return resolution
+  if (
+    state.event.currentEventId === null ||
+    state.event.minigame === null
+  ) {
+    throw new Error('No active minigame.')
+  }
+
+  const currentEvent = getEventDefinition(state.event.currentEventId)
+  const resolution = resolveRegisteredEvent(
+    state,
+    currentEvent.id,
+    action,
+    random,
+  )
+
+  if (!resolution) {
+    throw new Error(
+      `Minigame event ${String(currentEvent.id)} has no registered resolver.`,
+    )
+  }
+
+  return applyResolutionState(state, resolution)
 }
 
 export const completeCurrentEvent = (
@@ -200,7 +244,7 @@ export const completeCurrentEvent = (
   state.event.currentEventId = null
   state.event.pendingChoiceId = null
   state.event.resultText = null
-  state.event.pendingTimedEvent = false
+  state.event.minigame = null
 
   const settlement = settleEconomy(state)
 

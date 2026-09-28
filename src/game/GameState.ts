@@ -5,6 +5,7 @@ export type GameStatus =
   | 'moving'
   | 'event'
   | 'choice'
+  | 'minigame'
   | 'event-result'
   | 'game-over'
   | 'victory'
@@ -12,6 +13,10 @@ export type GameStatus =
 export type DiceType = 'normal' | 'dark' | 'special-50'
 
 export type EventId = number | 'blessing' | 'fame' | 'hidden-zero'
+
+export type MinigameKind = 'number-guess' | 'worship' | 'memory'
+export type MinigamePhase = 'input' | 'countdown' | 'reveal'
+export type TimedChallengeStatus = 'idle' | 'scheduled' | 'active' | 'resolved'
 
 export interface ProgressState {
   stage: number
@@ -39,6 +44,7 @@ export interface DiceState {
 export interface BlessingState {
   available: string[]
   owned: string[]
+  curses: string[]
   compoundActive: boolean
   starBlessingActive: boolean
   fameEventsRemaining: number
@@ -50,12 +56,33 @@ export interface InventoryState {
   ownedAccessories: string[]
 }
 
+export interface MinigameState {
+  kind: MinigameKind
+  phase: MinigamePhase
+  targetNumber: number | null
+  attemptsUsed: number
+  maxAttempts: number
+  expectedText: string | null
+  displayText: string | null
+  sequence: string[]
+  feedback: string | null
+}
+
+export interface TimedChallengeState {
+  status: TimedChallengeStatus
+  answer: number | null
+  triggerAt: number | null
+  expiresAt: number | null
+  resultText: string | null
+}
+
 export interface EventState {
   schedule: number[]
   currentEventId: EventId | null
   pendingChoiceId: string | null
-  pendingTimedEvent: boolean
   resultText: string | null
+  minigame: MinigameState | null
+  timedChallenge: TimedChallengeState
 }
 
 export interface HiddenState {
@@ -96,6 +123,7 @@ export const INITIAL_GAME_STATE: GameState = {
   blessings: {
     available: [],
     owned: [],
+    curses: [],
     compoundActive: false,
     starBlessingActive: false,
     fameEventsRemaining: 0,
@@ -109,8 +137,15 @@ export const INITIAL_GAME_STATE: GameState = {
     schedule: [],
     currentEventId: null,
     pendingChoiceId: null,
-    pendingTimedEvent: false,
     resultText: null,
+    minigame: null,
+    timedChallenge: {
+      status: 'idle',
+      answer: null,
+      triggerAt: null,
+      expiresAt: null,
+      resultText: null,
+    },
   },
   hidden: {
     demonInterest: 0,

@@ -14,6 +14,12 @@ import {
   resolveCurrentEventAction,
 } from './game/EventEngine'
 import { INITIAL_GAME_STATE, type GameStatus } from './game/GameState'
+import {
+  bindInteractiveEventUI,
+  renderMinigamePanel,
+  renderTimedChallengeOverlay,
+  syncInteractiveEventUI,
+} from './ui/MinigameUI'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -96,6 +102,8 @@ const statusLabel = (status: GameStatus): string => {
       return 'EVENT READY'
     case 'choice':
       return 'CHOICE'
+    case 'minigame':
+      return 'MINIGAME'
     case 'event-result':
       return 'EVENT RESULT'
     case 'victory':
@@ -119,6 +127,8 @@ const focusCopy = (): { eyebrow: string; button: string; disabled: boolean } => 
       return { eyebrow: '이동이 완료되었습니다', button: '이벤트 계산 중', disabled: true }
     case 'choice':
       return { eyebrow: '새로운 사건이 기다립니다', button: '이벤트 진행 중', disabled: true }
+    case 'minigame':
+      return { eyebrow: '도전이 진행 중입니다', button: '도전 진행 중', disabled: true }
     case 'event-result':
       return { eyebrow: '사건의 결과가 정해졌습니다', button: '결과 처리 중', disabled: true }
     case 'victory':
@@ -174,6 +184,10 @@ const renderEventPanel = (): string => {
   }
 
   const currentEvent = getCurrentEventDefinition(state)
+
+  if (state.progress.gameStatus === 'minigame' && currentEvent) {
+    return renderMinigamePanel(state, currentEvent)
+  }
 
   if (state.progress.gameStatus === 'choice' && currentEvent) {
     const choices = currentEvent.choices
@@ -337,7 +351,7 @@ const render = (): void => {
         <p class="focus-panel__eyebrow">${focus.eyebrow}</p>
         ${renderRollReadout()}
         <button class="primary-action" type="button" data-action="roll" ${focus.disabled ? 'disabled' : ''}>${focus.button}</button>
-        <p class="phase-note">Phase 6 · Choice Events + Numeric Input</p>
+        <p class="phase-note">Phase 6 · Browser Minigames + Timed Event</p>
       </section>
 
       ${renderEventPanel()}
@@ -347,9 +361,12 @@ const render = (): void => {
         <button type="button" disabled><span>▣</span> 악세사리 <strong>${state.inventory.ownedAccessories.length}</strong></button>
       </footer>
     </main>
+    ${renderTimedChallengeOverlay(state)}
   `
 
   bindActions()
+  bindInteractiveEventUI(app, state, render)
+  syncInteractiveEventUI(state, render)
 }
 
 const updateRunesOnly = (): void => {
