@@ -135,6 +135,10 @@ const formatSaveTime = (savedAt: number): string =>
     minute: '2-digit',
   })
 
+const canLoadCurrentState = (): boolean =>
+  canPersistGameState(state) &&
+  state.progress.gameStatus !== 'minigame'
+
 const shouldSkipAutosave = (): boolean =>
   state.progress.gameStatus === 'minigame' &&
   state.event.minigame?.kind === 'memory' &&
@@ -536,7 +540,7 @@ const render = (): void => {
       <section class="save-bar" aria-label="Save controls">
         <div class="save-bar__actions">
           <button type="button" data-action="save-game" ${canPersistGameState(state) && !shouldSkipAutosave() ? '' : 'disabled'}>SAVE</button>
-          <button type="button" data-action="load-game" ${lastSavedAt === null ? 'disabled' : ''}>LOAD</button>
+          <button type="button" data-action="load-game" ${lastSavedAt === null || !canLoadCurrentState() ? 'disabled' : ''}>LOAD</button>
         </div>
         <span>${persistenceNotice || (lastSavedAt !== null ? `AUTO · ${formatSaveTime(lastSavedAt)}` : 'AUTO SAVE READY')}</span>
       </section>
@@ -629,6 +633,7 @@ const bindActions = (): void => {
 
   const loadButton = app.querySelector<HTMLButtonElement>('[data-action="load-game"]')
   loadButton?.addEventListener('click', () => {
+    if (!canLoadCurrentState()) return
     restoreState(loadGame())
     render()
   })
