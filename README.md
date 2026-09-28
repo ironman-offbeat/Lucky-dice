@@ -54,6 +54,8 @@ Phase 10A production polish:
 - Blessing and accessory counts open readable bottom-sheet inventories with current effect descriptions
 - Victory and Game Over panels provide an immediate New Game action
 - Optional artwork slots are formalized in src/ui/Artwork.ts and public/images/README.md; gameplay remains image-independent until assets are supplied
+- Dice focus panel now uses a subdued black/gold geometric lattice treatment with a dark center vignette, implemented entirely in CSS
+- Completed event results remain visible while the game immediately returns to ready state; the redundant Next Turn confirmation step is removed
 - Memory Saver now records a save request flag for the later LocalStorage save phase
 - Original Python implementation preserved under `legacy/`
 

@@ -108,6 +108,33 @@ const resolveNumericInputMax = (
     ? Math.floor(state.economy.coin)
     : input.max ?? Number.POSITIVE_INFINITY
 
+const settleCompletedEvent = (
+  state: GameState,
+): EconomySettlementResult => {
+  const completedEventId = state.event.currentEventId
+
+  if (completedEventId === 'blessing') {
+    state.blessings.nextBlessingThreshold += 100
+  } else if (completedEventId === 'fame') {
+    state.blessings.fameEventsRemaining = Math.max(
+      0,
+      state.blessings.fameEventsRemaining - 1,
+    )
+  }
+
+  state.event.pendingChoiceId = null
+  state.event.minigame = null
+  state.event.blessingOffers = []
+
+  const settlement = settleEconomy(state)
+
+  if (!settlement.gameOver) {
+    state.progress.gameStatus = 'ready'
+  }
+
+  return settlement
+}
+
 const applyResolutionState = (
   state: GameState,
   resolution: EventResolution,
@@ -117,8 +144,7 @@ const applyResolutionState = (
   if (resolution.complete === false) {
     state.progress.gameStatus = 'minigame'
   } else {
-    state.event.minigame = null
-    state.progress.gameStatus = 'event-result'
+    settleCompletedEvent(state)
   }
 
   return resolution
@@ -241,29 +267,5 @@ export const completeCurrentEvent = (
   state: GameState,
 ): EconomySettlementResult => {
   assertStatus(state, 'event-result')
-
-  const completedEventId = state.event.currentEventId
-
-  if (completedEventId === 'blessing') {
-    state.blessings.nextBlessingThreshold += 100
-  } else if (completedEventId === 'fame') {
-    state.blessings.fameEventsRemaining = Math.max(
-      0,
-      state.blessings.fameEventsRemaining - 1,
-    )
-  }
-
-  state.event.currentEventId = null
-  state.event.pendingChoiceId = null
-  state.event.resultText = null
-  state.event.minigame = null
-  state.event.blessingOffers = []
-
-  const settlement = settleEconomy(state)
-
-  if (!settlement.gameOver) {
-    state.progress.gameStatus = 'ready'
-  }
-
-  return settlement
+  return settleCompletedEvent(state)
 }

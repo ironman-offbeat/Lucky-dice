@@ -187,11 +187,20 @@ const restoreState = (result: SaveLoadResult): boolean => {
   stopRuneShuffle()
   state = structuredClone(result.state)
   initializeEventSchedule(state)
+  const upgradedLegacyResult =
+    state.progress.gameStatus === 'event-result'
+
+  if (upgradedLegacyResult) {
+    completeCurrentEvent(state)
+  }
+
   currentMove = null
   collectionPanel = null
   visibleRunes = nextRuneSet()
   lastSavedAt = result.savedAt
-  lastPersistedFingerprint = JSON.stringify(state)
+  lastPersistedFingerprint = upgradedLegacyResult
+    ? null
+    : JSON.stringify(state)
   persistenceNotice = '저장된 진행 상태를 불러왔습니다.'
   launchMode = 'playing'
   return true
@@ -450,7 +459,12 @@ const renderEventPanel = (): string => {
     `
   }
 
-  if (state.progress.gameStatus === 'event-result' && currentEvent) {
+  if (
+    (state.progress.gameStatus === 'ready' ||
+      state.progress.gameStatus === 'event-result') &&
+    currentEvent &&
+    state.event.resultText
+  ) {
     return `
       <section class="event-panel event-panel--result" aria-label="Event result">
         <div class="event-panel__heading">
@@ -458,8 +472,7 @@ const renderEventPanel = (): string => {
           <span class="event-panel__badge">${currentEvent.name}</span>
         </div>
         <h1>결과</h1>
-        <p class="event-result-copy">${state.event.resultText ?? '이벤트 결과를 처리했습니다.'}</p>
-        <button class="secondary-action" type="button" data-action="complete-event">다음 턴</button>
+        <p class="event-result-copy">${state.event.resultText}</p>
       </section>
     `
   }
@@ -616,19 +629,6 @@ const playRollSequence = async (): Promise<void> => {
   render()
 }
 
-const handleCompleteEvent = (): void => {
-  if (state.progress.gameStatus !== 'event-result') return
-  completeCurrentEvent(state)
-
-  const statusAfterEvent = currentGameStatus()
-  if (statusAfterEvent === 'ready' || statusAfterEvent === 'game-over') {
-    currentMove = null
-  }
-
-  visibleRunes = nextRuneSet()
-  render()
-}
-
 const bindActions = (): void => {
   const rollButton = app.querySelector<HTMLButtonElement>('[data-action="roll"]')
   rollButton?.addEventListener('click', () => {
@@ -716,8 +716,6 @@ const bindActions = (): void => {
     render()
   })
 
-  const nextTurnButton = app.querySelector<HTMLButtonElement>('[data-action="complete-event"]')
-  nextTurnButton?.addEventListener('click', handleCompleteEvent)
 }
 
 render()
