@@ -1,4 +1,5 @@
 import './styles/game.css'
+import { consumeSpecialDice } from './game/BlessingEngine'
 import {
   beginMove,
   beginRoll,
@@ -156,6 +157,39 @@ const renderRollReadout = (): string => {
   `
 }
 
+const renderSpecialDiceControl = (): string => {
+  if (
+    !state.dice.specialDiceAvailable ||
+    state.progress.gameStatus !== 'ready'
+  ) {
+    return ''
+  }
+
+  return `
+    <div class="special-dice-control" aria-label="주사위의 축복">
+      <div class="special-dice-control__copy">
+        <span>50-SIDED BLESSING</span>
+        <strong>1회 사용 가능</strong>
+      </div>
+      <div class="special-dice-control__row">
+        <input
+          type="number"
+          inputmode="numeric"
+          min="1"
+          max="50"
+          step="1"
+          value="1"
+          aria-label="50면체 이동거리"
+          data-special-dice-input
+        />
+        <button
+          type="button"
+          data-action="special-dice"
+        >선택 이동</button>
+      </div>
+    </div>
+  `
+}
 const renderEventPanel = (): string => {
   if (state.progress.gameStatus === 'victory' && currentMove) {
     return `
@@ -350,8 +384,9 @@ const render = (): void => {
         </div>
         <p class="focus-panel__eyebrow">${focus.eyebrow}</p>
         ${renderRollReadout()}
+        ${renderSpecialDiceControl()}
         <button class="primary-action" type="button" data-action="roll" ${focus.disabled ? 'disabled' : ''}>${focus.button}</button>
-        <p class="phase-note">Phase 7 · Complete</p>
+        <p class="phase-note">Phase 8A · Blessing System</p>
       </section>
 
       ${renderEventPanel()}
@@ -422,6 +457,20 @@ const bindActions = (): void => {
     void playRollSequence()
   })
 
+  const specialDiceButton = app.querySelector<HTMLButtonElement>(
+    '[data-action="special-dice"]',
+  )
+  specialDiceButton?.addEventListener('click', () => {
+    if (state.progress.gameStatus !== 'ready') return
+
+    const input = app.querySelector<HTMLInputElement>(
+      '[data-special-dice-input]',
+    )
+    if (!input || !input.reportValidity()) return
+
+    consumeSpecialDice(state, Number(input.value))
+    void playRollSequence()
+  })
   const choiceButtons = app.querySelectorAll<HTMLButtonElement>('[data-event-choice]')
   choiceButtons.forEach((button) => {
     button.addEventListener('click', () => {

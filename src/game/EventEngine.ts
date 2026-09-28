@@ -80,7 +80,7 @@ export const prepareCurrentEvent = (
   state.event.pendingChoiceId = null
   state.event.resultText = null
   state.event.minigame = null
-  prepareRegisteredEvent(state, eventId)
+  prepareRegisteredEvent(state, eventId, random)
   state.progress.gameStatus = 'choice'
 
   return presentEventDefinition(
@@ -257,6 +257,7 @@ export const completeCurrentEvent = (
   state.event.pendingChoiceId = null
   state.event.resultText = null
   state.event.minigame = null
+  state.event.blessingOffers = []
 
   const settlement = settleEconomy(state)
 

@@ -1,3 +1,5 @@
+import { BLESSING_IDS } from '../data/blessings'
+
 export type GameStatus =
   | 'ready'
   | 'rolling'
@@ -88,6 +90,7 @@ export interface EventState {
   pendingChoiceId: string | null
   resultText: string | null
   minigame: MinigameState | null
+  blessingOffers: string[]
   timedChallenge: TimedChallengeState
 }
 
@@ -127,7 +130,7 @@ export const INITIAL_GAME_STATE: GameState = {
     diceBank: false,
   },
   blessings: {
-    available: [],
+    available: [...BLESSING_IDS],
     owned: [],
     curses: [],
     compoundActive: false,
@@ -146,6 +149,7 @@ export const INITIAL_GAME_STATE: GameState = {
     pendingChoiceId: null,
     resultText: null,
     minigame: null,
+    blessingOffers: [],
     timedChallenge: {
       status: 'idle',
       answer: null,

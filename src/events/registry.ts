@@ -43,8 +43,8 @@ const definition = (
 })
 
 const definitions: readonly EventDefinition[] = [
-  definition('fame', '유명한 자의 길', 'system', '명성의 축복으로 우선 발생하는 이벤트입니다.'),
-  definition('blessing', '축복 이벤트', 'system', '100 Stage 단위로 우선 발생하는 축복 이벤트입니다.'),
+  definition('fame', '유명한 자의 길', 'system', '명성의 축복으로 우선 발생하는 이벤트입니다.', { implemented: true, choiceLabel: '후원을 선택한다' }),
+  definition('blessing', '축복 이벤트', 'system', '100 Stage 단위로 우선 발생하는 축복 이벤트입니다.', { implemented: true, choiceLabel: '축복을 선택한다' }),
   definition('hidden-zero', '되돌아온 길', 'hidden', 'Stage 0 이하에서 발생하는 히든 이벤트입니다.'),
   definition(-1, '첫 번째 히든 이벤트', 'hidden', 'Stage 1에 배치된 원본 히든 이벤트입니다.'),
   definition(0, '쉬어가기', 'system', '별도의 사건 없이 다음 여정을 준비합니다.'),
@@ -97,7 +97,7 @@ const definitions: readonly EventDefinition[] = [
   definition(22, '지옥 · 이름 모를 악마', 'hell', '잃는 코인 보정이 증가하는 지옥 이벤트입니다.', { implemented: true, choiceLabel: '결과 확인' }),
   definition(23, '지옥 · 숨어있던 악마', 'hell', '잃는 코인 보정이 크게 증가하는 지옥 이벤트입니다.', { implemented: true, choiceLabel: '결과 확인' }),
   definition(24, '지옥 · 녹아내리는 코인', 'hell', '보유 코인의 약 10%를 잃는 지옥 이벤트입니다. 현재 Stage 생성표에서는 자연 발생하지 않습니다.', { implemented: true, choiceLabel: '결과 확인' }),
-  definition(49, '축복의 별', 'special', '별들의 축복과 연계되는 특별 이벤트입니다.'),
+  definition(49, '축복의 별', 'special', '별들의 축복과 연계되는 특별 이벤트입니다.', { implemented: true, choiceLabel: '별을 살펴본다' }),
   definition(50, '악마의 거래', 'special', '획득 보너스와 손실 보너스를 함께 +1 하는 거래를 제안받습니다.', { implemented: true, choices: [ { id: 'accept', label: '거래를 받아들인다' }, { id: 'reject', label: '거래를 거절한다' } ] }),
   definition(51, '강도 습격', 'special', '코인을 지불하거나 부상을 감수해야 합니다.', { implemented: true, choices: [ { id: 'pay', label: '코인을 지불한다' }, { id: 'resist', label: '지불하지 않고 맞선다' } ] }),
   definition(52, '상점', 'special', '여정 지원금을 받고 상품 하나를 구매할 수 있습니다.', { implemented: true, choiceLabel: '상품을 살펴본다' }),

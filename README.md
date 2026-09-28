@@ -4,7 +4,7 @@ Mobile-first web remake of the original Python console game **Lucky Dice**.
 
 ## Current phase
 
-Phase 7 complete:
+Phase 8A foundation:
 
 - Vite + TypeScript
 - Mobile portrait-first layout
@@ -29,10 +29,16 @@ Phase 7 complete:
 - Item effects are centralized in ItemEngine instead of black-market-specific branches
 - Black-market 777 roulette is centralized in RouletteEngine and reused by rare event 77
 - Rare event 77 is live with exactly three free spin opportunities and optional early exit
+- Blessing catalog SSOT and blessing engine are connected for all nine legacy blessings
+- 100-stage blessing events offer three source-compatible candidates plus rejection; accepted blessings are removed from the run pool
+- Compound, Greed, Regression, J, Dice, Fog, Stars, Fame and Swift blessing effects are live
+- Fame blessing routes the next three events through Famous Path choices
+- Stars blessing injects Stage-49 star events into the existing schedule, with source-compatible single-offer behavior
+- Dice blessing exposes a one-use 1–50 movement control that bypasses normal modifier and Piggy Bank effects
 - Memory Saver now records a save request flag for the later LocalStorage save phase
 - Original Python implementation preserved under `legacy/`
 
-All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 7 event port is complete: hell, core special, shop, black market, item effects and rare roulette 77 are live. Rare event 77 retains the original one-per-run placement and three free spin opportunities. Hidden/system events and the blessing system remain for the next phase.
+All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 8A blessing port is complete: threshold blessings, blessing-derived star/fame events, and the one-use 1–50 blessing die are live. The regular threshold event preserves the legacy candidate-pool asymmetry that excludes the final available blessing; the star event preserves its complementary source behavior. Hidden events at Stage 0/1 and remaining system placeholders are reserved for Phase 8B.
 
 ## Local development
 

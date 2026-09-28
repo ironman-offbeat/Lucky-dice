@@ -1,4 +1,5 @@
 import type { EventId, GameState } from '../game/GameState'
+import { prepareBlessingEvent, resolveBlessingEvent } from './blessing'
 import { resolveHellEvent } from './hell'
 import { resolveInputNormalEvent } from './inputNormal'
 import { resolveNormalEvent } from './normal'
@@ -13,6 +14,7 @@ export const resolveRegisteredEvent = (
   action: EventAction,
   random: EventRandomSource = Math.random,
 ): EventResolution | null =>
+  resolveBlessingEvent(state, eventId, action) ??
   resolveRareEvent(state, eventId, action, random) ??
   resolveHellEvent(state, eventId, action) ??
   resolveSpecialEvent(state, eventId, action, random) ??
@@ -23,6 +25,8 @@ export const resolveRegisteredEvent = (
 export const prepareRegisteredEvent = (
   state: GameState,
   eventId: EventId,
+  random: EventRandomSource = Math.random,
 ): void => {
+  prepareBlessingEvent(state, eventId, random)
   prepareSpecialEvent(state, eventId)
 }

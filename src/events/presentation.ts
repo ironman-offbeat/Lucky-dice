@@ -1,4 +1,5 @@
 import type { GameState } from '../game/GameState'
+import { getBlessingDescription, type BlessingId } from '../data/blessings'
 import { getShopPrice } from '../game/ShopEngine'
 import type { EventChoiceDefinition, EventDefinition } from './types'
 
@@ -6,6 +7,78 @@ export const presentEventDefinition = (
   state: Readonly<GameState>,
   definition: Readonly<EventDefinition>,
 ): EventDefinition => {
+  if (definition.id === 'blessing') {
+    const offers = state.event.blessingOffers as BlessingId[]
+
+    if (offers.length === 0) {
+      return {
+        ...definition,
+        choices: [
+          { id: 'continue-blessing', label: '계속' },
+        ],
+      }
+    }
+
+    return {
+      ...definition,
+      description:
+        '세 가지 축복 중 하나를 받거나 축복을 거절할 수 있습니다. 획득한 축복은 이번 판에 다시 등장하지 않습니다.',
+      choices: [
+        ...offers.map((id) => ({
+          id: `blessing:${id}`,
+          label: `${id} · ${getBlessingDescription(id)}`,
+        })),
+        {
+          id: 'reject-blessing',
+          label: '축복을 거절한다 · 획득 -1 / 손실 +1',
+        },
+      ],
+    }
+  }
+
+  if (definition.id === 'fame') {
+    return {
+      ...definition,
+      description:
+        `명성의 축복으로 남은 확정 이벤트 ${state.blessings.fameEventsRemaining}회. 원하는 후원을 선택하세요.`,
+      choices: [
+        { id: 'fame-dice', label: '상인의 후원 · 주사위 보정 +1' },
+        { id: 'fame-loss', label: '시민의 축복 · 손실 보너스 -1' },
+        { id: 'fame-gain', label: '시인의 이야기 · 획득 보너스 +1' },
+      ],
+    }
+  }
+
+  if (definition.id === 49) {
+    const offers = state.event.blessingOffers as BlessingId[]
+
+    if (state.progress.stage > 300 || offers.length === 0) {
+      return {
+        ...definition,
+        description:
+          '추락한 별을 발견했지만 별 안의 축복은 남아 있지 않습니다.',
+        choices: [
+          { id: 'continue-star', label: '별을 지나친다' },
+        ],
+      }
+    }
+
+    const id = offers[0]
+
+    return {
+      ...definition,
+      description:
+        '추락한 별 안에서 하나의 축복이 빛나고 있습니다.',
+      choices: [
+        {
+          id: `blessing:${id}`,
+          label: `${id} · ${getBlessingDescription(id)}`,
+        },
+        { id: 'ignore-star', label: '별을 무시한다' },
+      ],
+    }
+  }
+
   if (definition.id === 52) {
     const choices: EventChoiceDefinition[] = [
       {
