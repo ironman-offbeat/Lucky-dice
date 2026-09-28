@@ -1,6 +1,7 @@
 import type { EventId, GameState } from './GameState'
 import { settleEconomy, type EconomySettlementResult } from './EconomyEngine'
 import { getEventDefinition } from '../events/registry'
+import { presentEventDefinition } from '../events/presentation'
 import { resolveRegisteredEvent } from '../events/resolvers'
 import {
   createEventSchedule,
@@ -81,14 +82,21 @@ export const prepareCurrentEvent = (
   state.event.minigame = null
   state.progress.gameStatus = 'choice'
 
-  return getEventDefinition(eventId)
+  return presentEventDefinition(
+    state,
+    getEventDefinition(eventId),
+  )
 }
 
 export const getCurrentEventDefinition = (
   state: Readonly<GameState>,
 ): EventDefinition | null => {
   if (state.event.currentEventId === null) return null
-  return getEventDefinition(state.event.currentEventId)
+
+  return presentEventDefinition(
+    state,
+    getEventDefinition(state.event.currentEventId),
+  )
 }
 
 const resolveNumericInputMax = (
@@ -126,7 +134,8 @@ export const resolveCurrentEventAction = (
     throw new Error('No current event is prepared.')
   }
 
-  const currentEvent = getEventDefinition(state.event.currentEventId)
+  const currentEvent = getCurrentEventDefinition(state)
+  if (!currentEvent) throw new Error('No current event definition.')
   const numericInput = currentEvent.numericInput
   const numericInputMax = numericInput
     ? resolveNumericInputMax(state, numericInput)
@@ -208,7 +217,9 @@ export const resolveCurrentMinigameAction = (
     throw new Error('No active minigame.')
   }
 
-  const currentEvent = getEventDefinition(state.event.currentEventId)
+  const currentEvent = getCurrentEventDefinition(state)
+  if (!currentEvent) throw new Error('No current minigame definition.')
+
   const resolution = resolveRegisteredEvent(
     state,
     currentEvent.id,

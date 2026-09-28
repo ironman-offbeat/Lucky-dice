@@ -4,7 +4,7 @@ Mobile-first web remake of the original Python console game **Lucky Dice**.
 
 ## Current phase
 
-Phase 6 foundation:
+Phase 7A foundation:
 
 - Vite + TypeScript
 - Mobile portrait-first layout
@@ -19,9 +19,12 @@ Phase 6 foundation:
 - Angel Feather acquisition and its 50% +1 normal-die effect are connected
 - Coin gain/loss bonuses, exact costs, compound growth, rounding and bonus-floor settlement
 - Coin <= 0 game-over handling
+- Hell events 20–23 are live; event 24 is implemented but remains absent from the legacy-compatible schedule
+- Special events 50, 51, 53 and 55 are live; hell rest slot 66 is explicit
+- Cathedral and tax choices are derived from current state instead of hardcoded UI branches
 - Original Python implementation preserved under `legacy/`
 
-All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Special, hell, hidden and blessing events remain for later phases.
+All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 7B will complete commerce-heavy special events 52 (shop) and 54 (black market). Hidden, rare and blessing events remain for later phases.
 
 ## Local development
 
