@@ -182,51 +182,6 @@ button {
   overflow: hidden;
 }
 
-.focus-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(
-      circle at 50% 28%,
-      rgba(216, 184, 106, 0.075),
-      transparent 31%
-    ),
-    repeating-linear-gradient(
-      45deg,
-      transparent 0 41px,
-      rgba(213, 172, 83, 0.050) 41px 42px,
-      transparent 42px 83px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      transparent 0 41px,
-      rgba(135, 102, 43, 0.044) 41px 42px,
-      transparent 42px 83px
-    );
-  opacity: 0.82;
-  pointer-events: none;
-}
-
-.focus-panel::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(
-      circle at 50% 34%,
-      rgba(7, 8, 10, 0.02) 0 82px,
-      rgba(7, 8, 10, 0.14) 126px,
-      rgba(7, 8, 10, 0.42) 74%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(5, 6, 8, 0.03),
-      rgba(5, 6, 8, 0.16)
-    );
-  pointer-events: none;
-}
-
 .focus-panel > * {
   position: relative;
   z-index: 1;
@@ -404,10 +359,6 @@ button {
 }
 
 /* Phase 3: dice engine and stage movement */
-.focus-panel {
-  min-height: 340px;
-}
-
 .primary-action:not(:disabled) {
   color: #17130a;
   border-color: rgba(240, 218, 155, 0.72);
@@ -1508,28 +1459,31 @@ button {
   min-height: 235px;
   padding: 14px 14px 13px;
   border-radius: 20px;
-  background:
+  background-color: #08090b;
+  background-image:
     linear-gradient(
       180deg,
-      rgba(5, 6, 8, 0.18),
-      rgba(5, 6, 8, 0.26)
+      rgba(5, 6, 8, 0.10),
+      rgba(5, 6, 8, 0.18)
     ),
-    url("/images/focus-pattern-gold.webp") center / cover no-repeat;
+    url("/images/focus-pattern-gold.webp");
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  background-size: cover, cover;
 }
 
 .focus-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   background:
     radial-gradient(
       circle at 50% 32%,
-      rgba(4, 5, 7, 0.12) 0 58px,
-      rgba(4, 5, 7, 0.03) 108px,
-      transparent 68%
+      rgba(4, 5, 7, 0.14) 0 56px,
+      rgba(4, 5, 7, 0.04) 104px,
+      transparent 66%
     );
-  opacity: 1;
-}
-
-.focus-panel::after {
-  background: none;
+  pointer-events: none;
 }
 
 .dice-orbit {
