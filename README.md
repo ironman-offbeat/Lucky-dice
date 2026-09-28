@@ -11,6 +11,7 @@ Phase 6 foundation:
 - Dice engine + stage movement state machine
 - Centralized economy engine
 - Original-compatible per-run event schedule generator
+- Explicit weighted event support for low-frequency content
 - Typed Event Registry for normal, special, hell, hidden, rare and system events
 - Event state flow: stage → registry → choice → result → economy settlement → next turn
 - Normal event handlers 1 through 15 are implemented, including number guessing, worship, memory and delayed timed input
@@ -20,7 +21,7 @@ Phase 6 foundation:
 - Coin <= 0 game-over handling
 - Original Python implementation preserved under `legacy/`
 
-All normal-event handlers are ported. Events 7, 9 and 10 remain unreachable under the original stage schedule because the legacy generator never places those IDs; their handlers are ready for a later schedule/content decision. Event 15 is live in the 200–299 stage pool. Special, hell, hidden and blessing events remain for later phases.
+All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Special, hell, hidden and blessing events remain for later phases.
 
 ## Local development
 

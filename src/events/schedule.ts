@@ -2,17 +2,69 @@ export type EventRandomSource = () => number
 
 export const EVENT_SCHEDULE_MAX_STAGE = 460
 
-const randomIndex = (length: number, random: EventRandomSource): number => {
-  if (length <= 0) throw new Error('Cannot choose from an empty event pool.')
+interface WeightedEvent {
+  id: number
+  weight: number
+}
 
-  const normalized = Math.min(0.999999999999, Math.max(0, random()))
-  return Math.floor(normalized * length)
+const STAGE_200_299_POOL: readonly WeightedEvent[] = [
+  { id: 1, weight: 12 },
+  { id: 13, weight: 12 },
+  { id: 12, weight: 12 },
+  { id: 4, weight: 12 },
+  { id: 14, weight: 12 },
+  { id: 11, weight: 12 },
+  { id: 15, weight: 12 },
+  { id: 9, weight: 4 },
+  { id: 10, weight: 4 },
+]
+
+const normalizeRandom = (random: EventRandomSource): number =>
+  Math.min(0.999999999999, Math.max(0, random()))
+
+const randomIndex = (
+  length: number,
+  random: EventRandomSource,
+): number => {
+  if (length <= 0) {
+    throw new Error('Cannot choose from an empty event pool.')
+  }
+
+  return Math.floor(normalizeRandom(random) * length)
 }
 
 const choose = (
   pool: readonly number[],
   random: EventRandomSource,
 ): number => pool[randomIndex(pool.length, random)]
+
+const chooseWeighted = (
+  pool: readonly WeightedEvent[],
+  random: EventRandomSource,
+): number => {
+  if (pool.length === 0) {
+    throw new Error('Cannot choose from an empty weighted event pool.')
+  }
+
+  const totalWeight = pool.reduce((sum, entry) => {
+    if (!Number.isFinite(entry.weight) || entry.weight <= 0) {
+      throw new Error(
+        `Event ${entry.id} has an invalid weight: ${entry.weight}.`,
+      )
+    }
+
+    return sum + entry.weight
+  }, 0)
+
+  let cursor = normalizeRandom(random) * totalWeight
+
+  for (const entry of pool) {
+    cursor -= entry.weight
+    if (cursor < 0) return entry.id
+  }
+
+  return pool[pool.length - 1].id
+}
 
 export const createEventSchedule = (
   random: EventRandomSource = Math.random,
@@ -40,7 +92,9 @@ export const createEventSchedule = (
     } else if (idea >= 300 && idea < 400) {
       schedule.push(choose([20, 21, 22, 23], random))
     } else if (idea >= 200 && idea < 300) {
-      schedule.push(choose([1, 13, 12, 4, 14, 11, 15], random))
+      // Restore worship (9) and memory (10) as low-frequency mid-game
+      // variations. Event 7 stays intentionally absent from the schedule.
+      schedule.push(chooseWeighted(STAGE_200_299_POOL, random))
     } else if (idea >= 100 && idea < 200) {
       schedule.push(choose([1, 2, 11, 4, 14, 5, 8], random))
     } else {
