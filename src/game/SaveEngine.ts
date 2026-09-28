@@ -1,3 +1,5 @@
+import { BLESSING_IDS, type BlessingId } from '../data/blessings'
+import { ITEM_IDS, type ItemId } from '../data/items'
 import {
   INITIAL_GAME_STATE,
   type GameState,
@@ -122,67 +124,205 @@ const isValidEventId = (value: unknown): boolean =>
   value === 'fame' ||
   value === 'hidden-zero'
 
+const hasUniqueNumbersInRange = (
+  value: unknown,
+  min: number,
+  max: number,
+  expectedLength?: number,
+): value is number[] =>
+  isNumberArray(value) &&
+  (expectedLength === undefined ||
+    value.length === expectedLength) &&
+  new Set(value).size === value.length &&
+  value.every(
+    (entry) =>
+      Number.isInteger(entry) &&
+      entry >= min &&
+      entry <= max,
+  )
+
+const isBlessingId = (value: string): value is BlessingId =>
+  BLESSING_IDS.includes(value as BlessingId)
+
+const isItemId = (value: string): value is ItemId =>
+  ITEM_IDS.includes(value as ItemId)
+
+const isValidRouletteDigits = (value: unknown): boolean =>
+  value === undefined ||
+  value === null ||
+  (
+    Array.isArray(value) &&
+    value.length === 3 &&
+    value.every(
+      (entry) =>
+        Number.isInteger(entry) &&
+        entry >= 1 &&
+        entry <= 9,
+    )
+  )
+
 const isValidMinigame = (value: unknown): boolean => {
   if (value === null) return true
   if (!isRecord(value)) return false
 
-  return (
-    isMinigameKind(value.kind) &&
-    isMinigamePhase(value.phase) &&
-    isNullableFiniteNumber(value.targetNumber) &&
-    isFiniteNumber(value.attemptsUsed) &&
-    isFiniteNumber(value.maxAttempts) &&
-    (value.expectedText === null ||
-      typeof value.expectedText === 'string') &&
-    (value.displayText === null ||
-      typeof value.displayText === 'string') &&
-    isStringArray(value.sequence) &&
-    (value.feedback === null ||
-      typeof value.feedback === 'string') &&
-    (value.selectedNumbers === undefined ||
-      isNumberArray(value.selectedNumbers)) &&
-    (value.drawNumbers === undefined ||
-      isNumberArray(value.drawNumbers)) &&
-    (value.bonusNumber === undefined ||
-      isFiniteNumber(value.bonusNumber)) &&
-    (value.marketOffers === undefined ||
-      isStringArray(value.marketOffers)) &&
-    (value.rouletteDigits === undefined ||
-      value.rouletteDigits === null ||
-      (Array.isArray(value.rouletteDigits) &&
-        value.rouletteDigits.length === 3 &&
-        value.rouletteDigits.every(isFiniteNumber)))
-  )
+  if (
+    !isMinigameKind(value.kind) ||
+    !isMinigamePhase(value.phase) ||
+    !isFiniteNumber(value.attemptsUsed) ||
+    !Number.isInteger(value.attemptsUsed) ||
+    value.attemptsUsed < 0 ||
+    !isFiniteNumber(value.maxAttempts) ||
+    !Number.isInteger(value.maxAttempts) ||
+    value.maxAttempts < 1 ||
+    (value.feedback !== null &&
+      typeof value.feedback !== 'string') ||
+    !isStringArray(value.sequence)
+  ) {
+    return false
+  }
+
+  switch (value.kind) {
+    case 'number-guess':
+      return (
+        value.phase === 'input' &&
+        Number.isInteger(value.targetNumber) &&
+        Number(value.targetNumber) >= 1 &&
+        Number(value.targetNumber) <= 99 &&
+        value.maxAttempts === 6 &&
+        value.attemptsUsed <= 6 &&
+        value.expectedText === null &&
+        value.displayText === null
+      )
+
+    case 'worship':
+      return (
+        value.phase === 'input' &&
+        value.targetNumber === null &&
+        value.maxAttempts === 1 &&
+        value.attemptsUsed === 0 &&
+        typeof value.expectedText === 'string' &&
+        /^[A-Za-z]{25}$/.test(value.expectedText) &&
+        typeof value.displayText === 'string'
+      )
+
+    case 'memory':
+      return (
+        value.targetNumber === null &&
+        value.maxAttempts === 1 &&
+        value.attemptsUsed === 0 &&
+        typeof value.expectedText === 'string' &&
+        /^[1-3]{12}$/.test(value.expectedText) &&
+        value.sequence.length === 12 &&
+        value.sequence.every(
+          (entry) => /^[1-3]$/.test(entry),
+        ) &&
+        value.sequence.join('') === value.expectedText &&
+        (value.displayText === null ||
+          typeof value.displayText === 'string')
+      )
+
+    case 'lottery': {
+      if (
+        value.phase !== 'input' ||
+        value.targetNumber !== null ||
+        value.maxAttempts !== 1 ||
+        value.attemptsUsed !== 0 ||
+        !hasUniqueNumbersInRange(
+          value.selectedNumbers,
+          1,
+          45,
+        ) ||
+        value.selectedNumbers.length > 6 ||
+        !hasUniqueNumbersInRange(
+          value.drawNumbers,
+          1,
+          45,
+          6,
+        ) ||
+        !Number.isInteger(value.bonusNumber) ||
+        Number(value.bonusNumber) < 1 ||
+        Number(value.bonusNumber) > 45
+      ) {
+        return false
+      }
+
+      return !value.drawNumbers.includes(
+        Number(value.bonusNumber),
+      )
+    }
+
+    case 'black-market':
+      return (
+        value.phase === 'input' &&
+        value.targetNumber === null &&
+        value.maxAttempts === 1 &&
+        value.attemptsUsed === 0 &&
+        Array.isArray(value.marketOffers) &&
+        value.marketOffers.length <= 4 &&
+        new Set(value.marketOffers).size ===
+          value.marketOffers.length &&
+        value.marketOffers.every(
+          (entry) =>
+            typeof entry === 'string' &&
+            isItemId(entry),
+        ) &&
+        isValidRouletteDigits(value.rouletteDigits)
+      )
+
+    case 'rare-roulette':
+      return (
+        value.phase === 'input' &&
+        value.targetNumber === null &&
+        value.maxAttempts === 3 &&
+        value.attemptsUsed <= 3 &&
+        isValidRouletteDigits(value.rouletteDigits)
+      )
+  }
 }
+
+const isTimedAnswer = (value: unknown): value is number =>
+  Number.isInteger(value) &&
+  Number(value) >= 0 &&
+  Number(value) <= 9
 
 const isValidTimedChallenge = (value: unknown): boolean => {
   if (!isRecord(value)) return false
   if (!isTimedChallengeStatus(value.status)) return false
-  if (!isNullableFiniteNumber(value.answer)) return false
-  if (!isNullableFiniteNumber(value.triggerAt)) return false
-  if (!isNullableFiniteNumber(value.expiresAt)) return false
-  if (
-    value.resultText !== null &&
-    typeof value.resultText !== 'string'
-  ) {
-    return false
-  }
 
-  if (
-    value.status === 'scheduled' &&
-    value.triggerAt === null
-  ) {
-    return false
-  }
+  switch (value.status) {
+    case 'idle':
+      return (
+        value.answer === null &&
+        value.triggerAt === null &&
+        value.expiresAt === null &&
+        value.resultText === null
+      )
 
-  if (
-    value.status === 'active' &&
-    value.expiresAt === null
-  ) {
-    return false
-  }
+    case 'scheduled':
+      return (
+        isTimedAnswer(value.answer) &&
+        isFiniteNumber(value.triggerAt) &&
+        value.expiresAt === null &&
+        value.resultText === null
+      )
 
-  return true
+    case 'active':
+      return (
+        isTimedAnswer(value.answer) &&
+        isFiniteNumber(value.triggerAt) &&
+        isFiniteNumber(value.expiresAt) &&
+        value.expiresAt >= value.triggerAt &&
+        value.resultText === null
+      )
+
+    case 'resolved':
+      return (
+        isTimedAnswer(value.answer) &&
+        isFiniteNumber(value.triggerAt) &&
+        value.expiresAt === null &&
+        typeof value.resultText === 'string'
+      )
+  }
 }
 
 const isValidGameState = (value: unknown): value is GameState => {
@@ -201,6 +341,7 @@ const isValidGameState = (value: unknown): value is GameState => {
   if (
     !isRecord(progress) ||
     !isFiniteNumber(progress.stage) ||
+    !Number.isInteger(progress.stage) ||
     typeof progress.isHell !== 'boolean' ||
     !isGameStatus(progress.gameStatus)
   ) {
@@ -236,7 +377,16 @@ const isValidGameState = (value: unknown): value is GameState => {
   if (
     !isRecord(blessings) ||
     !isStringArray(blessings.available) ||
+    !blessings.available.every(isBlessingId) ||
+    new Set(blessings.available).size !==
+      blessings.available.length ||
     !isStringArray(blessings.owned) ||
+    !blessings.owned.every(isBlessingId) ||
+    new Set(blessings.owned).size !==
+      blessings.owned.length ||
+    blessings.available.some((entry) =>
+      blessings.owned.includes(entry)
+    ) ||
     !isStringArray(blessings.curses) ||
     typeof blessings.compoundActive !== 'boolean' ||
     typeof blessings.starBlessingActive !== 'boolean' ||
@@ -258,6 +408,8 @@ const isValidGameState = (value: unknown): value is GameState => {
   if (
     !isRecord(event) ||
     !isNumberArray(event.schedule) ||
+    event.schedule.length < 462 ||
+    !event.schedule.every(Number.isInteger) ||
     !isValidEventId(event.currentEventId) ||
     (event.pendingChoiceId !== null &&
       typeof event.pendingChoiceId !== 'string') ||
@@ -295,6 +447,24 @@ const isValidGameState = (value: unknown): value is GameState => {
     event.minigame === null
   ) {
     return false
+  }
+
+  if (
+    progress.gameStatus === 'minigame' &&
+    event.minigame !== null
+  ) {
+    const expectedEventId = {
+      'number-guess': 7,
+      worship: 9,
+      memory: 10,
+      lottery: 52,
+      'black-market': 54,
+      'rare-roulette': 77,
+    }[event.minigame.kind]
+
+    if (event.currentEventId !== expectedEventId) {
+      return false
+    }
   }
 
   return true

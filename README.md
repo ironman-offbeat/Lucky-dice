@@ -4,7 +4,7 @@ Mobile-first web remake of the original Python console game **Lucky Dice**.
 
 ## Current phase
 
-Phase 9A persistence:
+Phase 9B persistence hardening:
 
 - Vite + TypeScript
 - Mobile portrait-first layout
@@ -45,10 +45,14 @@ Phase 9A persistence:
 - Continue/New Game startup flow plus manual Save/Load controls are live
 - Timed challenge trigger/expiry timestamps persist across reloads; browser timeout handles are never serialized
 - Memory minigame reveal resumes safely from countdown, and Memory Saver now forces an immediate persisted save
+- Save validation is now minigame-aware: number guess, worship, memory, lottery, black market, rare roulette and timed challenge data are range-checked before load
+- Corrupt saves with mismatched minigame/event IDs, malformed roulette/lottery payloads, invalid blessing pools, transient statuses, or incomplete schedules are rejected
+- Saved Victory states render a complete victory panel even though transient movement animation data is intentionally not persisted
+- LOAD is disabled during active minigames and transient roll/move flows to prevent stale asynchronous UI work from mutating restored state
 - Memory Saver now records a save request flag for the later LocalStorage save phase
 - Original Python implementation preserved under `legacy/`
 
-All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 9A persistence is live. Save data is browser-local JSON under a versioned LocalStorage key, replacing the unsafe legacy save.txt + exec() model. Saves stay on the current browser/device and do not sync across devices. The next persistence step is save UX hardening and regression testing before visual polish.
+All normal-event handlers are ported. Event 7 remains intentionally excluded from the stage schedule. Events 9 (worship) and 10 (memory) are restored only in ordinary Stage 200–299 slots with weight 4 each versus weight 12 for the existing seven events, giving each about 4.35% of those ordinary slots. Event 15 remains in the same pool at the standard weight. Phase 9B persistence hardening is live. Save data is browser-local JSON under a versioned LocalStorage key, replacing the unsafe legacy save.txt + exec() model. Static regression review covers ready/choice/minigame/event-result/game-over/victory saves, shop and black-market sessions, lottery and roulette state, blessing offers, memory replay, and scheduled/active/resolved timed challenges. Automated browser interaction was not available in the execution environment, so Vercel Preview/Production builds and state-contract validation are used as the deployment gate. Saves stay on the current browser/device and do not sync across devices.
 
 ## Local development
 

@@ -330,7 +330,11 @@ const renderSpecialDiceControl = (): string => {
   `
 }
 const renderEventPanel = (): string => {
-  if (state.progress.gameStatus === 'victory' && currentMove) {
+  if (state.progress.gameStatus === 'victory') {
+    const victoryCopy = currentMove
+      ? `Stage ${currentMove.stageBefore}에서 ${currentMove.finalMove >= 0 ? '전진' : '후진'}하여 Stage ${state.progress.stage}에 도달했습니다.`
+      : `저장된 여정을 불러왔습니다. 최종 도달 Stage는 ${state.progress.stage}입니다.`
+
     return `
       <section class="event-panel event-panel--victory" aria-label="Victory">
         <div class="event-panel__heading">
@@ -338,7 +342,7 @@ const renderEventPanel = (): string => {
           <span class="event-panel__badge">COMPLETE</span>
         </div>
         <h1>여정의 끝</h1>
-        <p>Stage ${currentMove.stageBefore}에서 ${currentMove.finalMove >= 0 ? '전진' : '후진'}하여 Stage ${state.progress.stage}에 도달했습니다.</p>
+        <p>${victoryCopy}</p>
       </section>
     `
   }
@@ -532,7 +536,7 @@ const render = (): void => {
         ${renderRollReadout()}
         ${renderSpecialDiceControl()}
         <button class="primary-action" type="button" data-action="roll" ${focus.disabled ? 'disabled' : ''}>${focus.button}</button>
-        <p class="phase-note">Phase 9A · Local Save</p>
+        <p class="phase-note">Phase 9B · Save Regression</p>
       </section>
 
       ${renderEventPanel()}
